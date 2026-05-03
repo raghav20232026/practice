@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Smart Trip Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --primary:#1a56db;--accent:#8b5cf6;--success:#059669;--danger:#dc2626;
+  --orange:#f97316;--bg:#f0f4ff;--card:#fff;--text:#1e293b;--muted:#64748b;
+  --border:#e2e8f0;--gold:#f59e0b;--veg:#16a34a;--nonveg:#dc2626;
+}
+body{font-family:'Poppins',sans-serif;background:var(--bg);min-height:100vh;padding:16px;}
+.container{max-width:1120px;margin:auto;}
+.hero{background:linear-gradient(135deg,#0f2460,#1a56db,#8b5cf6);border-radius:24px;padding:28px 32px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");}
+.hero h1{font-family:'Baloo 2';font-size:2.2rem;font-weight:800;color:#fff;position:relative;}
+.hero p{color:rgba(255,255,255,.8);font-size:.9rem;margin-top:4px;position:relative;}
+.card{background:var(--card);padding:22px;border-radius:20px;box-shadow:0 4px 24px rgba(0,0,0,.08);margin-bottom:18px;border:1px solid var(--border);}
+.sec-title{font-family:'Baloo 2';font-size:1.35rem;font-weight:700;color:var(--text);margin:18px 0 10px;display:flex;align-items:center;gap:8px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr;}}
+.fg label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;}
+.fg input,.fg select{width:100%;padding:11px 14px;border-radius:11px;border:1.5px solid var(--border);font-size:14px;font-family:'Poppins';background:#f8faff;transition:.2s;color:var(--text);}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.1);background:#fff;}
+.btn{padding:11px 24px;border-radius:11px;font-weight:700;cursor:pointer;border:none;font-size:14px;font-family:'Poppins';transition:.2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:linear-gradient(135deg,#1a56db,#8b5cf6);color:#fff;width:100%;justify-content:center;margin-top:8px;}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px);}
+.btn-success{background:linear-gradient(135deg,#059669,#34d399);color:#fff;}
+.btn-orange{background:linear-gradient(135deg,#f97316,#fbbf24);color:#fff;}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:8px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:700px){.grid-2{grid-template-columns:1fr;}}
+.place-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.09);border:2px solid transparent;transition:.3s;position:relative;}
+.place-card:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,.14);border-color:var(--primary);}
+.place-card.selected{border-color:var(--success);box-shadow:0 0 0 4px rgba(5,150,105,.15);}
+.place-card img{width:100%;height:160px;object-fit:cover;}
+.place-card .cb{padding:12px;}
+.place-card .cn{font-weight:700;font-size:14px;color:var(--text);}
+.stars{color:var(--gold);font-size:13px;}
+.price-tag{font-size:13px;font-weight:700;color:var(--primary);}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;}
+.b-orange{background:#fff7ed;color:#c2410c;}
+.b-blue{background:#eff6ff;color:#1d4ed8;}
+.b-green{background:#f0fdf4;color:#166534;}
+.offer-strip{background:linear-gradient(135deg,#fef3c7,#fde68a);border:1.5px solid #f59e0b;border-radius:10px;padding:8px 12px;margin:8px 0;display:flex;align-items:center;gap:8px;font-size:12px;color:#92400e;font-weight:600;}
+.day-card{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1.5px solid #bae6fd;border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+.day-title{font-size:.95rem;font-weight:800;color:#0369a1;margin-bottom:8px;}
+.day-item{display:flex;align-items:flex-start;gap:8px;margin:5px 0;font-size:13px;color:#334155;line-height:1.5;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;}
+.modal{background:#fff;border-radius:22px;width:100%;max-width:680px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;}
+.modal-header{background:linear-gradient(135deg,#0f2460,#1a56db);padding:18px 22px;color:#fff;display:flex;justify-content:space-between;align-items:center;}
+.modal-header h2{font-family:'Baloo 2';font-size:1.3rem;}
+.close-btn{background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:18px 22px;max-height:80vh;overflow-y:auto;}
+.tabs{display:flex;gap:0;margin-bottom:16px;border-radius:12px;overflow:hidden;border:1.5px solid var(--border);}
+.tab-btn{flex:1;padding:10px;border:none;cursor:pointer;font-family:'Poppins';font-size:13px;font-weight:700;transition:.2s;background:#f8faff;color:var(--muted);}
+.tab-btn.veg-active{background:var(--veg);color:#fff;}
+.tab-btn.nonveg-active{background:var(--nonveg);color:#fff;}
+.veg-dot{width:12px;height:12px;border-radius:2px;border:1.5px solid var(--veg);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.veg-dot::after{content:'';width:6px;height:6px;background:var(--veg);border-radius:50%;}
+.nonveg-dot{width:12px;height:12px;border-radius:2px;border:1.5px solid var(--nonveg);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nonveg-dot::after{content:'';width:6px;height:6px;background:var(--nonveg);border-radius:50%;}
+.menu-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:.15s;}
+.menu-item:last-child{border-bottom:none;}
+.menu-item:hover{background:#f8faff;border-radius:10px;padding:10px 8px;}
+.mi-img{width:60px;height:60px;border-radius:10px;object-fit:cover;flex-shrink:0;}
+.mi-info{flex:1;min-width:0;}
+.mi-name{font-weight:600;font-size:13px;color:var(--text);display:flex;align-items:center;gap:6px;}
+.mi-desc{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mi-price{font-weight:700;font-size:14px;color:var(--primary);}
+.qty-ctrl{display:flex;align-items:center;gap:6px;}
+.qty-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--primary);background:#fff;color:var(--primary);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:800;transition:.15s;}
+.qty-btn:hover{background:var(--primary);color:#fff;}
+.qty-val{font-weight:700;font-size:14px;min-width:18px;text-align:center;}
+.table-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0;}
+.table-btn{padding:10px 0;border-radius:10px;border:2px solid var(--border);background:#f8faff;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);text-align:center;transition:.2s;}
+.table-btn:hover{border-color:var(--primary);color:var(--primary);}
+.table-btn.occupied{background:#fee2e2;border-color:#fca5a5;color:#dc2626;cursor:not-allowed;}
+.table-btn.selected-table{background:var(--success);border-color:var(--success);color:#fff;}
+.recipe-popup{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:3000;display:flex;align-items:center;justify-content:center;padding:16px;}
+.recipe-box{background:#fff;border-radius:20px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.recipe-box .rh{background:linear-gradient(135deg,#f97316,#fbbf24);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-radius:20px 20px 0 0;}
+.recipe-box .rh h3{font-family:'Baloo 2';font-size:1.2rem;color:#fff;}
+.recipe-box .rb{padding:18px 20px;}
+.recipe-step{display:flex;gap:10px;margin:8px 0;font-size:13px;color:var(--text);align-items:flex-start;}
+.step-num{background:var(--primary);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
+.loc-popup{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:3000;display:flex;align-items:center;justify-content:center;padding:16px;}
+.loc-box{background:#fff;border-radius:20px;max-width:500px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.loc-box .lh{background:linear-gradient(135deg,#059669,#34d399);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;}
+.loc-box .lh h3{font-family:'Baloo 2';font-size:1.1rem;color:#fff;}
+.map-frame{width:100%;height:300px;border:none;}
+.review-section{margin-top:12px;}
+.review-item{background:#f8faff;border-radius:12px;padding:10px 14px;margin-bottom:8px;}
+.review-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.reviewer{font-weight:700;font-size:13px;color:var(--text);}
+.review-text{font-size:12px;color:var(--muted);line-height:1.5;}
+.add-review{margin-top:10px;}
+.add-review textarea{width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--border);font-family:'Poppins';font-size:13px;resize:none;}
+.star-select{display:flex;gap:4px;margin:6px 0;}
+.star-select span{font-size:22px;cursor:pointer;transition:.1s;opacity:.4;}
+.star-select span.active{opacity:1;}
+.receipt-card{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;border-radius:18px;padding:20px;margin-top:16px;}
+.r-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed #a7f3d0;font-size:13px;}
+.r-row:last-child{border:none;font-size:15px;font-weight:800;color:var(--success);margin-top:4px;}
+#voicePanel{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+#chatBubble{background:linear-gradient(135deg,#0f2460,#4c1d95);color:#fff;border-radius:16px 16px 4px 16px;padding:12px 14px;max-width:270px;font-size:12.5px;line-height:1.6;box-shadow:0 8px 28px rgba(79,70,229,.4);display:none;word-break:break-word;white-space:pre-line;}
+#chatBubble.show{display:block;animation:popIn .2s ease;}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+#micBtn{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#1a56db,#8b5cf6);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 22px rgba(124,58,237,.5);transition:.2s;position:relative;flex-shrink:0;}
+#micBtn:hover{transform:scale(1.1);}
+#micBtn svg{width:24px;height:24px;fill:white;pointer-events:none;}
+#micBtn.listening::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:3px solid #8b5cf6;animation:ring 1s infinite;}
+#micBtn.listening::after{content:'';position:absolute;inset:-16px;border-radius:50%;border:2px solid rgba(139,92,246,.3);animation:ring 1s .4s infinite;}
+@keyframes ring{0%{transform:scale(1);opacity:1}100%{transform:scale(1.6);opacity:0}}
+#voiceLabel{font-size:10px;color:#64748b;text-align:center;}
+#langBadge{background:#fff;border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.1);display:none;}
+.hidden{display:none !important;}
+#homePage{display:block;}
+#mainApp{display:none;}
+#mainApp:not(.hidden){display:block;}
+.tag{display:inline-block;background:#eff6ff;color:#1d4ed8;border-radius:7px;padding:3px 9px;font-size:11px;font-weight:600;margin:2px;}
+.hotel-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2500;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:12px;}
+.hotel-modal{background:#fff;border-radius:22px;width:100%;max-width:780px;margin:auto;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.3);}
+.hm-gallery{position:relative;height:280px;overflow:hidden;}
+.hm-gallery img.hm-main{width:100%;height:280px;object-fit:cover;transition:.4s;}
+.hm-thumbs{display:flex;gap:8px;padding:10px 16px;background:#0f1c3a;overflow-x:auto;}
+.hm-thumb{width:70px;height:52px;border-radius:8px;object-fit:cover;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:.2s;opacity:.7;}
+.hm-thumb:hover,.hm-thumb.active{border-color:#fff;opacity:1;}
+.hm-body{padding:20px 22px;}
+.hm-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.hm-name{font-family:'Baloo 2';font-size:1.6rem;font-weight:800;color:var(--text);}
+.hm-price-box{text-align:right;}
+.hm-price{font-size:1.4rem;font-weight:800;color:var(--primary);}
+.facility-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:14px 0;}
+.facility-item{display:flex;align-items:center;gap:8px;background:#f8faff;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:600;color:var(--text);}
+.facility-item .fi{font-size:20px;flex-shrink:0;}
+.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:12px 0;}
+.room-card{border:1.5px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:.2s;}
+.room-card:hover{border-color:var(--primary);box-shadow:0 4px 16px rgba(26,86,219,.15);}
+.room-card.selected-room{border-color:var(--success);background:#f0fdf4;}
+.room-card img{width:100%;height:120px;object-fit:cover;}
+.room-card .rc-body{padding:10px 12px;}
+.room-card .rc-name{font-weight:700;font-size:13px;color:var(--text);}
+.room-card .rc-feat{font-size:11px;color:var(--muted);margin:3px 0;}
+.room-card .rc-price{font-weight:800;color:var(--primary);font-size:14px;}
+.hm-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:14px;overflow-x:auto;}
+.hm-tab{padding:10px 18px;border:none;background:none;cursor:pointer;font-family:'Poppins';font-size:13px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;}
+.hm-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+
+/* ── FOOTER ── */
+.site-footer{background:linear-gradient(135deg,#0f172a,#1e293b);color:#94a3b8;margin-top:40px;border-radius:24px 24px 0 0;}
+.footer-top{padding:36px 32px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:28px;}
+.footer-col h4{color:#fff;font-weight:700;font-size:14px;margin-bottom:12px;font-family:'Baloo 2';}
+.footer-col a{display:block;color:#94a3b8;font-size:13px;margin:6px 0;text-decoration:none;transition:.15s;cursor:pointer;}
+.footer-col a:hover{color:#e2e8f0;}
+.footer-award{background:linear-gradient(135deg,#1d4ed8,#7c3aed);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:12px;margin-top:10px;}
+.footer-award .aw-icon{font-size:2rem;}
+.footer-award .aw-text{font-size:11px;color:#e0e7ff;line-height:1.5;}
+.footer-award .aw-title{font-weight:800;font-size:13px;color:#fff;}
+.footer-pay{padding:18px 32px;border-top:1px solid #1e293b;display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.pay-badge{background:#1e293b;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:#94a3b8;border:1px solid #334155;cursor:pointer;transition:.15s;}
+.pay-badge:hover{background:#334155;color:#fff;}
+.footer-bottom{padding:16px 32px;border-top:1px solid #1e293b;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;font-size:12px;}
+.footer-bottom a{color:#64748b;text-decoration:none;}
+.footer-bottom a:hover{color:#94a3b8;}
+@media(max-width:600px){.footer-top{padding:24px 20px;}.footer-pay,.footer-bottom{padding:14px 20px;}}
+
+/* ── GENERIC POPUP ── */
+.gen-popup{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:4000;display:flex;align-items:center;justify-content:center;padding:16px;}
+.gen-box{background:#fff;border-radius:22px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,.35);}
+.gen-head{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;border-radius:22px 22px 0 0;}
+.gen-body{padding:20px 22px;}
+
+/* ── PAYMENT POPUP ── */
+.pay-option{display:flex;align-items:center;gap:14px;padding:14px;border:1.5px solid var(--border);border-radius:14px;margin-bottom:10px;cursor:pointer;transition:.2s;}
+.pay-option:hover{border-color:var(--primary);background:#f0f4ff;}
+.pay-option .pi{font-size:2rem;width:48px;text-align:center;}
+.pay-option .pt{font-weight:700;font-size:14px;color:var(--text);}
+.pay-option .ps{font-size:12px;color:var(--muted);}
+.qr-box{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:2px solid #bae6fd;border-radius:16px;padding:20px;text-align:center;margin:12px 0;}
+.qr-img{width:160px;height:160px;background:linear-gradient(135deg,#1a56db,#8b5cf6);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;position:relative;overflow:hidden;}
+.qr-img svg{width:140px;height:140px;}
+
+/* ── GYM CARD ── */
+.gym-card{background:linear-gradient(135deg,#fff7ed,#fef3c7);border:1.5px solid #fcd34d;border-radius:14px;padding:14px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;}
+.gym-icon{font-size:2.2rem;flex-shrink:0;}
+.gym-name{font-weight:800;font-size:14px;color:#92400e;}
+.gym-meta{font-size:12px;color:#b45309;margin-top:3px;}
+.gym-badge{display:inline-block;background:#fef08a;color:#78350f;border-radius:20px;padding:2px 10px;font-size:10px;font-weight:700;margin-top:4px;}
+
+/* ── FAMOUS PLACES ── */
+.famous-place{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.famous-place:last-child{border-bottom:none;}
+.fp-num{width:28px;height:28px;background:linear-gradient(135deg,#1a56db,#8b5cf6);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
+.fp-info{flex:1;}
+.fp-name{font-weight:700;color:var(--text);}
+.fp-type{font-size:11px;color:var(--muted);}
+.fp-dist{font-size:12px;color:var(--success);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ══════ HOME PAGE ══════ -->
+<div id="homePage">
+  <nav style="display:flex;justify-content:space-between;align-items:center;padding:14px 0 18px;flex-wrap:wrap;gap:10px;">
+    <div style="font-family:'Baloo 2';font-size:1.8rem;font-weight:800;color:var(--primary);">✈️ TripAI</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="#loginBox" style="padding:8px 18px;border-radius:10px;background:var(--primary);color:#fff;font-weight:700;font-size:13px;text-decoration:none;">Login</a>
+      <a href="#loginBox" style="padding:8px 18px;border-radius:10px;border:1.5px solid var(--primary);color:var(--primary);font-weight:700;font-size:13px;text-decoration:none;">Sign Up</a>
+    </div>
+  </nav>
+
+  <div style="background:linear-gradient(135deg,#0f2460,#1a56db,#8b5cf6);border-radius:24px;padding:40px 32px;text-align:center;margin-bottom:28px;position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;opacity:.06;background:url('data:image/svg+xml,%3Csvg width=60 height=60 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath fill=%22white%22 d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/svg%3E');"></div>
+    <div style="position:relative;">
+      <div style="font-family:'Baloo 2';font-size:2.6rem;font-weight:800;color:#fff;line-height:1.2;">Plan Your Dream Trip 🌍</div>
+      <div style="color:rgba(255,255,255,.8);font-size:1rem;margin:10px 0 24px;">Real Hotels • Veg & Non-Veg Menus • Table Booking • Live Location • AI Assistant</div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:28px;">
+        <span style="background:rgba(255,255,255,.15);color:#fff;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:600;">🏨 10,000+ Hotels</span>
+        <span style="background:rgba(255,255,255,.15);color:#fff;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:600;">🍽️ Real Restaurants</span>
+        <span style="background:rgba(255,255,255,.15);color:#fff;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:600;">📍 GPS Location</span>
+        <span style="background:rgba(255,255,255,.15);color:#fff;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:600;">🎤 Voice AI</span>
+        <span style="background:rgba(255,255,255,.15);color:#fff;border-radius:20px;padding:6px 16px;font-size:13px;font-weight:600;">🌟 Best Price Guarantee</span>
+      </div>
+      <div id="loginBox" style="background:rgba(255,255,255,.97);border-radius:20px;padding:28px;max-width:420px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+        <div style="font-family:'Baloo 2';font-size:1.4rem;font-weight:800;color:var(--primary);margin-bottom:4px;">Welcome to TripAI 👋</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:18px;">Login to plan your perfect trip</div>
+        <div class="fg"><label>Mobile Number</label><input type="number" id="mobile" placeholder="Enter 10-digit mobile number" style="background:#f8faff;"></div>
+        <button class="btn btn-primary" onclick="sendOTP()" style="margin-top:10px;">📲 Send OTP & Login</button>
+        <div id="otpBox" style="display:none;margin-top:12px;">
+          <div class="fg"><label>Enter OTP</label><input type="number" id="otp" placeholder="Enter OTP (use: 1234)" style="background:#f8faff;"></div>
+          <button class="btn btn-primary" onclick="verifyOTP()" style="margin-top:8px;background:linear-gradient(135deg,#059669,#34d399);">✅ Verify & Start Planning</button>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:var(--muted);text-align:center;">By continuing, you agree to our <a href="#" style="color:var(--primary);">Terms</a> & <a href="#" style="color:var(--primary);">Privacy Policy</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;">
+    <div class="card" style="text-align:center;padding:20px;"><div style="font-size:2.5rem;">🏨</div><div style="font-family:'Baloo 2';font-weight:800;font-size:1rem;margin:8px 0 4px;">Real Hotel Details</div><div style="font-size:12px;color:var(--muted);">Rooms, Pool, Gym, Spa — sab ek jagah</div></div>
+    <div class="card" style="text-align:center;padding:20px;"><div style="font-size:2.5rem;">🟢🔴</div><div style="font-family:'Baloo 2';font-weight:800;font-size:1rem;margin:8px 0 4px;">Veg & Non-Veg Menu</div><div style="font-size:12px;color:var(--muted);">Alag sections + recipes + offers</div></div>
+    <div class="card" style="text-align:center;padding:20px;"><div style="font-size:2.5rem;">📍</div><div style="font-family:'Baloo 2';font-weight:800;font-size:1rem;margin:8px 0 4px;">GPS Location</div><div style="font-size:12px;color:var(--muted);">Paas ke hotels & restaurants dhundho</div></div>
+    <div class="card" style="text-align:center;padding:20px;"><div style="font-size:2.5rem;">🎤</div><div style="font-family:'Baloo 2';font-weight:800;font-size:1rem;margin:8px 0 4px;">AI Voice Assistant</div><div style="font-size:12px;color:var(--muted);">Hindi & English mein baat karein</div></div>
+    <div class="card" style="text-align:center;padding:20px;"><div style="font-size:2.5rem;">⭐</div><div style="font-family:'Baloo 2';font-weight:800;font-size:1rem;margin:8px 0 4px;">Reviews & Ratings</div><div style="font-size:12px;color:var(--muted);">Real user reviews + apna review dein</div></div>
+    <div class="card" style="text-align:center;padding:20px;"><div style="font-size:2.5rem;">💰</div><div style="font-family:'Baloo 2';font-weight:800;font-size:1rem;margin:8px 0 4px;">Best Price Guarantee</div><div style="font-size:12px;color:var(--muted);">Budget ke hisaab se best deals</div></div>
+  </div>
+  <div id="homeFooter"></div>
+</div>
+
+<!-- HOTEL DETAIL MODAL -->
+<div id="hotelModal" class="hotel-modal-overlay hidden">
+  <div class="hotel-modal">
+    <div class="hm-gallery">
+      <img id="hmMainImg" class="hm-main" src="" alt="Hotel">
+      <button onclick="closeHotelModal()" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;">✕</button>
+    </div>
+    <div class="hm-thumbs" id="hmThumbs"></div>
+    <div class="hm-body">
+      <div class="hm-header">
+        <div>
+          <div class="hm-name" id="hmName"></div>
+          <div id="hmStars" class="stars"></div>
+          <div id="hmAddress" style="font-size:12px;color:var(--muted);margin-top:4px;"></div>
+        </div>
+        <div class="hm-price-box">
+          <div class="hm-price" id="hmPrice"></div>
+          <div style="font-size:11px;color:var(--muted);">per night</div>
+          <button id="hmBookBtn" class="btn btn-primary" style="margin-top:8px;padding:10px 20px;font-size:13px;" onclick="confirmHotelFromModal()">🏨 Book Now</button>
+        </div>
+      </div>
+      <div class="hm-tabs">
+        <button class="hm-tab active" onclick="hmTab('overview',this)">Overview</button>
+        <button class="hm-tab" onclick="hmTab('rooms',this)">🛏️ Rooms</button>
+        <button class="hm-tab" onclick="hmTab('amenities',this)">🏊 Amenities</button>
+        <button class="hm-tab" onclick="hmTab('location',this)">📍 Location</button>
+        <button class="hm-tab" onclick="hmTab('policies',this)">📋 Policies</button>
+      </div>
+      <div id="hmTabContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" class="hidden">
+  <div class="hero">
+    <h1>✈️ AI Smart Trip Planner</h1>
+    <p>Real Hotels • Veg & Non-Veg Menus • Table Booking • Reviews • Recipes • Live Location</p>
+  </div>
+  <div class="card" id="locationCard" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #86efac;">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="font-size:2rem;">📍</div>
+      <div style="flex:1;">
+        <div style="font-family:'Baloo 2';font-weight:800;color:#166534;font-size:1.1rem;">Aapki Location ke Paas Hotels & Restaurants</div>
+        <div id="locStatusText" style="font-size:13px;color:#15803d;margin-top:2px;">GPS se aapki location detect karein aur nearby options dekhein</div>
+      </div>
+      <button class="btn btn-success" id="detectLocBtn" onclick="detectMyLocation()" style="flex-shrink:0;padding:10px 18px;font-size:13px;">🎯 Detect My Location</button>
+    </div>
+    <div id="nearbySection" style="display:none;margin-top:16px;"></div>
+  </div>
+  <div class="card">
+    <div class="sec-title">🗺️ Plan Your Trip</div>
+    <div class="form-grid">
+      <div class="fg">
+        <label>From (Aapka Shehar)</label>
+        <div style="position:relative;">
+          <input type="text" id="origin" placeholder="e.g. Varanasi, Lucknow...">
+          <button onclick="fillMyCity()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#1a56db;color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:700;">📍 My City</button>
+        </div>
+      </div>
+      <div class="fg"><label>Destination</label><input type="text" id="destination" placeholder="e.g. Goa, Manali, Jaipur..."></div>
+      <div class="fg"><label>Days</label><input type="number" id="days" placeholder="e.g. 5"></div>
+      <div class="fg"><label>Budget ₹</label><input type="number" id="budget" placeholder="e.g. 15000"></div>
+    </div>
+    <button class="btn btn-primary" onclick="planTrip()">🗺️ Plan My Trip</button>
+  </div>
+  <div id="output"></div>
+</div>
+
+</div><!-- /container -->
+
+<!-- RESTAURANT MODAL -->
+<div id="restModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="restModalTitle">🍽️ Restaurant</h2>
+      <button class="close-btn" onclick="closeRestModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="restOffer"></div>
+      <div class="tabs">
+        <button class="tab-btn veg-active" id="vegTab" onclick="switchTab('veg')">🟢 Veg Menu</button>
+        <button class="tab-btn" id="nonvegTab" onclick="switchTab('nonveg')">🔴 Non-Veg Menu</button>
+        <button class="tab-btn" id="reviewTab" onclick="switchTab('review')">⭐ Reviews</button>
+        <button class="tab-btn" id="tableTab" onclick="switchTab('table')">🪑 Table</button>
+      </div>
+      <div id="vegSection"></div>
+      <div id="nonvegSection" class="hidden"></div>
+      <div id="reviewSection" class="hidden"></div>
+      <div id="tableSection" class="hidden"></div>
+      <div id="orderSummary" style="margin-top:14px;padding-top:12px;border-top:2px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;">
+          <span>Order Total:</span><span id="modalTotal" style="color:var(--primary);">₹0</span>
+        </div>
+        <div id="offerLine" style="font-size:12px;color:var(--success);margin-top:4px;display:none;"></div>
+      </div>
+      <div style="margin-top:14px;" class="form-grid">
+        <div class="fg"><label>Date</label><input type="date" id="bookDate"></div>
+        <div class="fg"><label>Time Slot</label>
+          <select id="bookTime">
+            <option value="">-- Select --</option>
+            <option>🌅 8:00 AM - 10:00 AM (Breakfast)</option>
+            <option>☀️ 12:30 PM - 2:30 PM (Lunch)</option>
+            <option>🌙 7:00 PM - 9:30 PM (Dinner)</option>
+          </select>
+        </div>
+        <div class="fg"><label>Guests</label>
+          <select id="bookGuests">
+            <option>1 Person</option><option selected>2 Persons</option>
+            <option>3 Persons</option><option>4 Persons</option>
+            <option>6 Persons</option><option>8+ Persons</option>
+          </select>
+        </div>
+        <div class="fg"><label>Your Name</label><input type="text" id="bookName" placeholder="Enter name"></div>
+      </div>
+      <button class="btn btn-success" style="width:100%;margin-top:10px;justify-content:center;" onclick="confirmTableBooking()">✅ Confirm Table Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECIPE POPUP -->
+<div id="recipePopup" class="recipe-popup hidden">
+  <div class="recipe-box">
+    <div class="rh"><h3 id="recipeTitle">Recipe</h3>
+      <button style="background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;" onclick="closeRecipe()">✕</button>
+    </div>
+    <div class="rb" id="recipeBody"></div>
+  </div>
+</div>
+
+<!-- LOCATION POPUP -->
+<div id="locPopup" class="loc-popup hidden">
+  <div class="loc-box">
+    <div class="lh"><h3 id="locTitle">📍 Location</h3>
+      <button style="background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;" onclick="closeLoc()">✕</button>
+    </div>
+    <div id="locBody" style="padding:16px 20px;"></div>
+    <iframe id="mapFrame" class="map-frame" allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- GENERIC POPUP -->
+<div id="genPopup" class="gen-popup hidden">
+  <div class="gen-box">
+    <div class="gen-head" id="genHead">
+      <span id="genHeadTitle" style="font-family:'Baloo 2';font-size:1.2rem;font-weight:800;color:#fff;"></span>
+      <button onclick="closeGenPopup()" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div class="gen-body" id="genBody"></div>
+  </div>
+</div>
+
+<!-- VOICE PANEL -->
+<div id="voicePanel">
+  <div id="langBadge">🇮🇳 HI</div>
+  <div id="chatBubble"></div>
+  <button id="micBtn" onclick="toggleVoice()">
+    <svg viewBox="0 0 24 24"><path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm6 9a1 1 0 0 1 2 0 8 8 0 0 1-7 7.93V20h2a1 1 0 0 1 0 2H9a1 1 0 0 1 0-2h2v-2.07A8 8 0 0 1 4 10a1 1 0 0 1 2 0 6 6 0 0 0 12 0z"/></svg>
+  </button>
+  <div id="voiceLabel">🎤 Tap to talk</div>
+</div>
+
+<script>
+/* ═══ DATA ═══════════════════════════════════════════ */
+const DEST_DATA = {
+  goa:{
+    weather:"31°C Sunny & Humid 🌞",region:"Coastal • West India",
+    places:["Baga Beach","Calangute Beach","Dudhsagar Falls","Fort Aguada","Basilica of Bom Jesus","Anjuna Flea Market","Palolem Beach"],
+    activities:["Water sports & Jet ski","Sunset cruise","Night market shopping","Spice plantation tour","Old Goa heritage walk"],
+    img:"https://images.unsplash.com/photo-1512343879784-a960bf40e7f2",
+    famousPlaces:[
+      {name:"Baga Beach",type:"Beach • Party Hub",dist:"2.1 km",icon:"🏖️",desc:"Goa's most famous beach with beach shacks, water sports and nightlife"},
+      {name:"Fort Aguada",type:"Historic Fort",dist:"4.5 km",icon:"🏰",desc:"17th century Portuguese fort with lighthouse and sea views"},
+      {name:"Dudhsagar Falls",type:"Waterfall • Nature",dist:"60 km",icon:"💧",desc:"One of India's tallest waterfalls — stunning 4-tier cascade"},
+      {name:"Anjuna Flea Market",type:"Market • Shopping",dist:"8 km",icon:"🛍️",desc:"Iconic Wednesday flea market selling handicrafts and clothes"},
+      {name:"Basilica of Bom Jesus",type:"UNESCO Heritage Church",dist:"12 km",icon:"⛪",desc:"400-year-old church housing St. Francis Xavier's remains"},
+      {name:"Calangute Beach",type:"Beach • Family",dist:"3.8 km",icon:"🌊",desc:"Queen of Beaches — largest and busiest beach in North Goa"},
+    ],
+    gyms:[
+      {name:"Gold's Gym Panaji",rating:"4.6",timing:"5AM–11PM",fee:"₹1,800/month",facilities:"Cardio • Free Weights • CrossFit • Sauna",address:"EDC Complex, Panaji, Goa",badge:"Premium"},
+      {name:"Anytime Fitness Porvorim",rating:"4.5",timing:"24 Hours",fee:"₹2,200/month",facilities:"Full Equipment • AC • Trainer Available",address:"Big Bazaar Complex, Porvorim, Goa",badge:"24x7"},
+      {name:"FitLife Calangute",rating:"4.3",timing:"6AM–10PM",fee:"₹900/month",facilities:"Weights • Yoga • Zumba",address:"Near Calangute Beach, North Goa",badge:"Budget"},
+    ],
+    hotels:[
+      {name:"The Leela Goa",stars:5,price:8500,img:"https://images.unsplash.com/photo-1566073771259-6a8506099945",amenities:"Pool • Spa • Beach Access • Fine Dining",tag:"Beachfront Luxury",badge:"b-orange",address:"Mobor, Cavelossim, South Goa",mapQ:"The Leela Goa Hotel",lat:"15.1726",lng:"73.9480"},
+      {name:"Taj Holiday Village",stars:5,price:7200,img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",amenities:"Garden View • Pool • Bar • Water Sports",tag:"Heritage Resort",badge:"b-blue",address:"Sinquerim, Candolim, North Goa",mapQ:"Taj Holiday Village Goa",lat:"15.5185",lng:"73.7642"},
+      {name:"Aloft North Goa",stars:4,price:4800,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",amenities:"Rooftop Pool • Free WiFi • Bar",tag:"Party Vibes",badge:"b-green",address:"Candolim Beach Road, North Goa",mapQ:"Aloft North Goa Hotel",lat:"15.5215",lng:"73.7621"},
+      {name:"Zostel Panaji",stars:3,price:1200,img:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304",amenities:"Dorm & Private • Rooftop • Social Hub",tag:"Budget",badge:"b-green",address:"Near Panaji Bus Stand, Panaji, Goa",mapQ:"Zostel Goa Panaji",lat:"15.4982",lng:"73.8272"},
+    ],
+    restaurants:[
+      {name:"Gunpowder Restaurant",cuisine:"Goan Coastal Seafood",rating:4.9,priceFor2:1800,img:"https://images.unsplash.com/photo-1544025162-d76694265947",speciality:"Prawn Balchao, Fish Curry Rice",offer:"20% off on seafood platter 🦞",offerVal:20,address:"Assagao, Bardez, Goa",mapQ:"Gunpowder Restaurant Goa",lat:"15.5882",lng:"73.7658"},
+      {name:"Britto's Bar & Restaurant",cuisine:"Continental • Goan • BBQ",rating:4.7,priceFor2:2200,img:"https://images.unsplash.com/photo-1513104890138-7c749659a591",speciality:"Grilled Prawns, King Fish Fry",offer:"Free Sol Kadhi with any main 🍹",offerVal:0,address:"Calangute Beach Road, Goa",mapQ:"Britto's Restaurant Calangute Goa",lat:"15.5438",lng:"73.7565"},
+      {name:"Bhatti Village",cuisine:"Traditional Goan Home Style",rating:4.8,priceFor2:900,img:"https://images.unsplash.com/photo-1563379091339-03246963d29a",speciality:"Authentic Fish Curry, Xacuti",offer:"Buy 1 Get 1 on Feni Cocktails 🍸",offerVal:0,address:"Rua de Ourem, Panaji, Goa",mapQ:"Bhatti Village Restaurant Goa",lat:"15.4909",lng:"73.8278"},
+    ]
+  },
+  delhi:{
+    weather:"28°C Partly Cloudy ⛅",region:"Capital City • North India",
+    places:["Red Fort","Qutub Minar","India Gate","Humayun's Tomb","Lotus Temple","Akshardham","Chandni Chowk"],
+    activities:["Chandni Chowk food walk","CP shopping","Street food tour","Garden of 5 Senses","Old Delhi heritage walk"],
+    img:"https://images.unsplash.com/photo-1587474260584-136574528ed5",
+    famousPlaces:[
+      {name:"Red Fort",type:"UNESCO Heritage • Mughal",dist:"1.2 km",icon:"🏯",desc:"Iconic 17th-century Mughal fort — India's Independence Day venue"},
+      {name:"India Gate",type:"War Memorial • Icon",dist:"3.5 km",icon:"🏛️",desc:"42m high WWI memorial on Rajpath — Delhi's must-visit landmark"},
+      {name:"Qutub Minar",type:"UNESCO Heritage",dist:"15 km",icon:"🕌",desc:"World's tallest brick minaret built in 1193 — stunning architecture"},
+      {name:"Humayun's Tomb",type:"UNESCO Heritage • Garden",dist:"8 km",icon:"⛩️",desc:"Precursor to Taj Mahal — beautiful Mughal garden tomb"},
+      {name:"Chandni Chowk",type:"Old Market • Street Food",dist:"1.8 km",icon:"🛒",desc:"400-year-old market — best street food in India"},
+      {name:"Akshardham Temple",type:"Temple • Cultural",dist:"10 km",icon:"🛕",desc:"Stunning modern Hindu temple with boat ride and cultural show"},
+    ],
+    gyms:[
+      {name:"Gold's Gym Connaught Place",rating:"4.7",timing:"5AM–11PM",fee:"₹2,500/month",facilities:"Full Equipment • Pool • Steam • Trainer",address:"Connaught Place, New Delhi",badge:"Premium"},
+      {name:"Cult.fit CP",rating:"4.6",timing:"6AM–10PM",fee:"₹1,999/month",facilities:"HIIT • Boxing • Yoga • Dance",address:"Barakhamba Road, New Delhi",badge:"Trending"},
+      {name:"Talwalkars Karol Bagh",rating:"4.4",timing:"6AM–10PM",fee:"₹1,500/month",facilities:"Weights • Cardio • Aerobics",address:"Karol Bagh, New Delhi",badge:"Popular"},
+    ],
+    hotels:[
+      {name:"The Imperial New Delhi",stars:5,price:12000,img:"https://images.unsplash.com/photo-1566073771259-6a8506099945",amenities:"Heritage • Spa • Fine Dining • Art Gallery",tag:"Colonial Grandeur",badge:"b-orange",address:"Janpath Lane, New Delhi",mapQ:"The Imperial Hotel New Delhi",lat:"28.6221",lng:"77.2166"},
+      {name:"Hyatt Regency Delhi",stars:5,price:9500,img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",amenities:"Pool • Club Lounge • Multi Restaurants",tag:"Business Luxury",badge:"b-blue",address:"Bhikaji Cama Place, New Delhi",mapQ:"Hyatt Regency New Delhi",lat:"28.5676",lng:"77.1877"},
+      {name:"Lemon Tree Hotel CP",stars:4,price:4500,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",amenities:"Rooftop Bar • Pool • Central Location",tag:"City Center",badge:"b-green",address:"Connaught Place, New Delhi",mapQ:"Lemon Tree Hotel Connaught Place Delhi",lat:"28.6315",lng:"77.2167"},
+      {name:"Backpacker Panda",stars:3,price:800,img:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304",amenities:"Dorm • Common Kitchen • Near Station",tag:"Budget",badge:"b-green",address:"Paharganj, Near New Delhi Railway Station",mapQ:"Backpacker Panda Paharganj Delhi",lat:"28.6441",lng:"77.2120"},
+    ],
+    restaurants:[
+      {name:"Karim's Jama Masjid",cuisine:"Mughlai Kebabs Since 1913",rating:4.8,priceFor2:800,img:"https://images.unsplash.com/photo-1544025162-d76694265947",speciality:"Mutton Korma, Seekh Kebab",offer:"Free Sheermal with Kebab platter 🍞",offerVal:0,address:"16, Gali Kababian, Jama Masjid, Delhi",mapQ:"Karim's Restaurant Jama Masjid Delhi",lat:"28.6507",lng:"77.2334"},
+      {name:"Paranthe Wali Gali",cuisine:"Street Food • Parathas",rating:4.7,priceFor2:400,img:"https://images.unsplash.com/photo-1513104890138-7c749659a591",speciality:"Stuffed Parathas, Rabri, Jalebis",offer:"Combo meal ₹150 — save ₹80 🥞",offerVal:0,address:"Chandni Chowk, Old Delhi",mapQ:"Paranthe Wali Gali Chandni Chowk Delhi",lat:"28.6560",lng:"77.2301"},
+      {name:"Indian Accent",cuisine:"Modern Indian Fine Dining",rating:4.9,priceFor2:4500,img:"https://images.unsplash.com/photo-1563379091339-03246963d29a",speciality:"Blue Cheese Naan, Duck Khurchan",offer:"Complimentary dessert on pre-booking 🍰",offerVal:0,address:"The Lodhi, Lodhi Road, Delhi",mapQ:"Indian Accent Restaurant Delhi",lat:"28.5918",lng:"77.2273"},
+    ]
+  },
+  mumbai:{
+    weather:"30°C Humid 🌊",region:"Maximum City • West India",
+    places:["Gateway of India","Marine Drive","Elephanta Caves","Juhu Beach","Siddhivinayak","Dharavi","Bandra Sea Link"],
+    activities:["Bollywood studio tour","Local train ride","Dharavi heritage tour","Street food walk","Ferry to Elephanta"],
+    img:"https://images.unsplash.com/photo-1570168007204-dfb528c6958f",
+    famousPlaces:[
+      {name:"Gateway of India",type:"Historic Monument",dist:"0.5 km",icon:"🏛️",desc:"Iconic 1924 arch monument overlooking Arabian Sea — Mumbai's symbol"},
+      {name:"Marine Drive",type:"Promenade • Scenic",dist:"2.8 km",icon:"🌊",desc:"Queen's Necklace — stunning 3.6 km coastal promenade"},
+      {name:"Elephanta Caves",type:"UNESCO Heritage • Caves",dist:"10 km (by ferry)",icon:"🗿",desc:"6th century rock-cut caves with massive Shiva sculptures"},
+      {name:"Chhatrapati Shivaji Terminus",type:"UNESCO Heritage • Railway",dist:"1.5 km",icon:"🚉",desc:"Stunning Victorian Gothic railway station — UNESCO World Heritage"},
+      {name:"Siddhivinayak Temple",type:"Temple • Religious",dist:"6 km",icon:"🛕",desc:"Most famous Ganesh temple — draws millions of devotees"},
+      {name:"Bandra-Worli Sea Link",type:"Engineering Marvel",dist:"8 km",icon:"🌉",desc:"8-lane cable-stayed bridge — Mumbai's most photogenic structure"},
+    ],
+    gyms:[
+      {name:"Gold's Gym Bandra",rating:"4.8",timing:"5AM–11PM",fee:"₹3,000/month",facilities:"Olympic Weights • Pool • Spa • Personal Training",address:"Linking Road, Bandra West, Mumbai",badge:"Premium"},
+      {name:"Cult.fit Andheri",rating:"4.6",timing:"6AM–10PM",fee:"₹2,200/month",facilities:"Boxing • Yoga • Zumba • HIIT",address:"Andheri West, Mumbai",badge:"Trending"},
+      {name:"Fitness One Colaba",rating:"4.4",timing:"6AM–10PM",fee:"₹1,800/month",facilities:"Full Gym • Steam Room",address:"Near Gateway, Colaba, Mumbai",badge:"City Center"},
+    ],
+    hotels:[
+      {name:"Taj Mahal Palace Mumbai",stars:5,price:18000,img:"https://images.unsplash.com/photo-1566073771259-6a8506099945",amenities:"Heritage • Pool • Sea View • Fine Dining",tag:"Iconic Landmark",badge:"b-orange",address:"Apollo Bunder, Colaba, Mumbai",mapQ:"Taj Mahal Palace Hotel Mumbai",lat:"18.9217",lng:"72.8332"},
+      {name:"InterContinental Marine Drive",stars:5,price:11000,img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",amenities:"Sea View • Rooftop Pool • Spa",tag:"Queen's Necklace",badge:"b-blue",address:"135, Marine Drive, Mumbai",mapQ:"InterContinental Marine Drive Mumbai",lat:"18.9342",lng:"72.8239"},
+      {name:"Ibis Mumbai Airport",stars:3,price:3500,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",amenities:"Free Airport Shuttle • Restaurant",tag:"Airport Convenient",badge:"b-green",address:"Near International Airport, Andheri East, Mumbai",mapQ:"Ibis Mumbai Airport Hotel",lat:"19.0932",lng:"72.8594"},
+      {name:"Zostel Mumbai",stars:2,price:700,img:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304",amenities:"Dorm • Near Station • Social Events",tag:"Budget",badge:"b-green",address:"Colaba, Near Gateway of India, Mumbai",mapQ:"Zostel Mumbai Colaba",lat:"18.9213",lng:"72.8321"},
+    ],
+    restaurants:[
+      {name:"Trishna Seafood",cuisine:"Coastal • Seafood • Konkan",rating:4.8,priceFor2:2500,img:"https://images.unsplash.com/photo-1544025162-d76694265947",speciality:"Butter Garlic Crab, Koliwada Prawns",offer:"15% off on weekdays 🦀",offerVal:15,address:"Sai Baba Marg, Fort, Mumbai",mapQ:"Trishna Restaurant Mumbai",lat:"18.9322",lng:"72.8348"},
+      {name:"Khyber Restaurant",cuisine:"Mughlai • North Indian",rating:4.7,priceFor2:2200,img:"https://images.unsplash.com/photo-1513104890138-7c749659a591",speciality:"Raan-e-Khyber, Seekh Kebab",offer:"Free Naan basket with any main 🫓",offerVal:0,address:"145, MG Road, Fort, Mumbai",mapQ:"Khyber Restaurant Mumbai",lat:"18.9307",lng:"72.8338"},
+      {name:"Elco Pani Puri Center",cuisine:"Street Food • Chaat • Mumbai Snacks",rating:4.9,priceFor2:300,img:"https://images.unsplash.com/photo-1563379091339-03246963d29a",speciality:"Pani Puri, Bhel Puri, Sev Puri",offer:"Extra 6 puris free on every plate 🍱",offerVal:0,address:"Hill Road, Bandra West, Mumbai",mapQ:"Elco Pani Puri Center Bandra Mumbai",lat:"19.0596",lng:"72.8295"},
+    ]
+  },
+  jaipur:{
+    weather:"30°C Sunny 🌞",region:"Pink City • Rajasthan",
+    places:["Hawa Mahal","Amber Fort","City Palace","Jantar Mantar","Nahargarh Fort","Jal Mahal","Albert Hall"],
+    activities:["Elephant ride at Amber","Puppet show","Block printing workshop","Gem shopping","Heritage walk"],
+    img:"https://images.unsplash.com/photo-1477587458883-47145ed6736c",
+    famousPlaces:[
+      {name:"Hawa Mahal",type:"Palace • Architecture",dist:"1.0 km",icon:"🏯",desc:"Palace of Winds — iconic 5-storey facade with 953 small windows"},
+      {name:"Amber Fort",type:"Fort • UNESCO Heritage",dist:"11 km",icon:"🏰",desc:"Magnificent hilltop fort with stunning Sheesh Mahal mirror palace"},
+      {name:"City Palace",type:"Palace • Museum",dist:"1.5 km",icon:"👑",desc:"Royal palace complex — still home to Jaipur's royal family"},
+      {name:"Jantar Mantar",type:"UNESCO Heritage • Observatory",dist:"1.7 km",icon:"🔭",desc:"18th century astronomical observatory with world's largest sundial"},
+      {name:"Nahargarh Fort",type:"Fort • Sunset Point",dist:"7 km",icon:"🌄",desc:"Best sunset views of Jaipur — fort built in 1734"},
+      {name:"Jal Mahal",type:"Palace • Lake",dist:"5 km",icon:"🌊",desc:"Water palace in Man Sagar Lake — most photographed spot in Jaipur"},
+    ],
+    gyms:[
+      {name:"Gold's Gym Vaishali Nagar",rating:"4.5",timing:"5:30AM–11PM",fee:"₹2,000/month",facilities:"Full Equipment • Cardio • Steam • Trainer",address:"Vaishali Nagar, Jaipur",badge:"Premium"},
+      {name:"Fitness World Malviya Nagar",rating:"4.4",timing:"6AM–10PM",fee:"₹1,200/month",facilities:"Weights • Treadmills • Yoga",address:"Malviya Nagar, Jaipur",badge:"Popular"},
+      {name:"Body Craft Gym C-Scheme",rating:"4.6",timing:"5AM–10PM",fee:"₹1,500/month",facilities:"CrossFit • Boxing • Personal Training",address:"C-Scheme, Jaipur",badge:"Trending"},
+    ],
+    hotels:[
+      {name:"Rambagh Palace",stars:5,price:22000,img:"https://images.unsplash.com/photo-1566073771259-6a8506099945",amenities:"Royal Heritage • Polo Ground • Spa",tag:"Former Royal Palace",badge:"b-orange",address:"Bhawani Singh Road, Jaipur, Rajasthan",mapQ:"Rambagh Palace Jaipur",lat:"26.8988",lng:"75.8136"},
+      {name:"Jai Mahal Palace",stars:5,price:14000,img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",amenities:"Garden • Pool • Heritage • Elephant Rides",tag:"18th Century Palace",badge:"b-blue",address:"Jacob Road, Civil Lines, Jaipur",mapQ:"Jai Mahal Palace Jaipur",lat:"26.9145",lng:"75.8123"},
+      {name:"Hotel Pearl Palace",stars:3,price:2200,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",amenities:"Rooftop Restaurant • Free WiFi",tag:"Award-winning Budget",badge:"b-green",address:"Hathroi Fort, Ajmer Road, Jaipur",mapQ:"Hotel Pearl Palace Jaipur",lat:"26.9197",lng:"75.8092"},
+      {name:"Zostel Jaipur",stars:2,price:650,img:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304",amenities:"Dorm • Terrace • Bike Rental",tag:"Budget",badge:"b-green",address:"Near Hawa Mahal, Old City, Jaipur",mapQ:"Zostel Jaipur",lat:"26.9239",lng:"75.8267"},
+    ],
+    restaurants:[
+      {name:"Laxmi Misthan Bhandar",cuisine:"Pure Veg • Rajasthani • Sweets",rating:4.8,priceFor2:600,img:"https://images.unsplash.com/photo-1544025162-d76694265947",speciality:"Dal Baati Churma, Ghewar",offer:"Free Mawa Kachori with Thali 🍮",offerVal:0,address:"Johari Bazaar, Jaipur, Rajasthan",mapQ:"Laxmi Misthan Bhandar Jaipur",lat:"26.9124",lng:"75.8648"},
+      {name:"Suvarna Mahal Rambagh",cuisine:"Royal Rajasthani Fine Dining",rating:4.9,priceFor2:5500,img:"https://images.unsplash.com/photo-1513104890138-7c749659a591",speciality:"Laal Maas, Safed Maas, Royal Thali",offer:"Complimentary folk performance 🎵",offerVal:0,address:"Rambagh Palace, Bhawani Singh Rd, Jaipur",mapQ:"Suvarna Mahal Rambagh Palace Jaipur",lat:"26.8988",lng:"75.8136"},
+      {name:"Peacock Rooftop",cuisine:"Multi-cuisine • Rajasthani",rating:4.6,priceFor2:1200,img:"https://images.unsplash.com/photo-1563379091339-03246963d29a",speciality:"Laal Maas, Paneer Tikka, Thali",offer:"20% off on dinner before 7 PM 🌙",offerVal:20,address:"Hotel Pearl Palace, Hathroi Fort, Jaipur",mapQ:"Peacock Rooftop Restaurant Jaipur",lat:"26.9197",lng:"75.8092"},
+    ]
+  },
+  manali:{
+    weather:"12°C Cool & Scenic 🏔️",region:"Hill Station • Himachal Pradesh",
+    places:["Rohtang Pass","Solang Valley","Hadimba Temple","Old Manali","Beas River","Naggar Castle","Jogini Falls"],
+    activities:["Snow activities & skiing","Paragliding","Trek to Jogini Falls","River rafting","Bonfire camping"],
+    img:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
+    famousPlaces:[
+      {name:"Rohtang Pass",type:"Mountain Pass • Snow",dist:"51 km",icon:"🏔️",desc:"13,058 ft high mountain pass — stunning snow even in summer"},
+      {name:"Solang Valley",type:"Adventure Sports",dist:"14 km",icon:"🎿",desc:"Snow sports, paragliding, zorbing — Manali's adventure capital"},
+      {name:"Hadimba Temple",type:"Temple • Forest",dist:"2.5 km",icon:"🛕",desc:"4-storey wooden pagoda in cedar forest — 16th century temple"},
+      {name:"Old Manali",type:"Village • Cafes",dist:"3 km",icon:"🏡",desc:"Hippie village with cozy cafes, guest houses and mountain vibes"},
+      {name:"Naggar Castle",type:"Heritage • Art",dist:"22 km",icon:"🏰",desc:"900-year-old castle converted to heritage hotel with valley views"},
+      {name:"Jogini Falls",type:"Trek • Waterfall",dist:"5 km",icon:"💧",desc:"2-hour scenic trek leading to 150 ft waterfall with Himalayan views"},
+    ],
+    gyms:[
+      {name:"Himalayan Fitness Manali",rating:"4.3",timing:"6AM–9PM",fee:"₹800/month",facilities:"Basic Weights • Cardio • Yoga",address:"Mall Road, Manali, HP",badge:"Local Fav"},
+      {name:"Peak Performance Gym",rating:"4.2",timing:"6AM–8PM",fee:"₹600/month",facilities:"Free Weights • Treadmill",address:"Old Manali Village, Manali",badge:"Budget"},
+      {name:"Vashisht Wellness Center",rating:"4.5",timing:"7AM–7PM",fee:"₹1,200/month",facilities:"Yoga • Meditation • Hot Springs Access",address:"Vashisht, Manali, HP",badge:"Wellness"},
+    ],
+    hotels:[
+      {name:"Span Resort & Spa",stars:5,price:9500,img:"https://images.unsplash.com/photo-1566073771259-6a8506099945",amenities:"Riverside Chalets • Spa • Adventure",tag:"Riverside Luxury",badge:"b-orange",address:"NH-21, Kullu-Manali Highway, Katrain, HP",mapQ:"Span Resort Spa Manali",lat:"31.9847",lng:"77.1244"},
+      {name:"Solang Valley Resort",stars:4,price:5500,img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",amenities:"Mountain View • Indoor Pool • Bonfire",tag:"Snow Valley",badge:"b-blue",address:"Solang Valley Road, Manali, HP",mapQ:"Solang Valley Resort Manali",lat:"32.3152",lng:"77.1537"},
+      {name:"Hotel Highlands",stars:3,price:2800,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",amenities:"Valley View • Heater Rooms",tag:"Valley View",badge:"b-green",address:"Near Mall Road, Manali, HP",mapQ:"Hotel Highlands Manali",lat:"32.2396",lng:"77.1887"},
+      {name:"Moustache Hostel",stars:2,price:600,img:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304",amenities:"Dorm • Bonfire • Bike Rental",tag:"Adventure Base",badge:"b-green",address:"Old Manali Village, Manali, HP",mapQ:"Moustache Hostel Manali",lat:"32.2520",lng:"77.1748"},
+    ],
+    restaurants:[
+      {name:"Johnson Bar & Restaurant",cuisine:"Continental • Himachali • Trout",rating:4.8,priceFor2:1400,img:"https://images.unsplash.com/photo-1544025162-d76694265947",speciality:"Fresh River Trout, Himachali Dham",offer:"Free hot chocolate with any main ☕",offerVal:0,address:"Near Circuit House, Manali, HP",mapQ:"Johnson Bar Restaurant Manali",lat:"32.2396",lng:"77.1887"},
+      {name:"Café 1947",cuisine:"Café • Bakery • Himachali Street Food",rating:4.6,priceFor2:700,img:"https://images.unsplash.com/photo-1513104890138-7c749659a591",speciality:"Sidu, Thukpa, Banana Pancake",offer:"Buy 2 get 1 free on hot beverages ☕",offerVal:0,address:"Old Manali Road, Manali, HP",mapQ:"Cafe 1947 Manali Himachal Pradesh",lat:"32.2520",lng:"77.1748"},
+      {name:"Drifters' Inn",cuisine:"Multi-cuisine • Momos • Israeli",rating:4.7,priceFor2:900,img:"https://images.unsplash.com/photo-1563379091339-03246963d29a",speciality:"Momos, Thukpa, Hummus",offer:"10% off for groups of 4+ 👨‍👩‍👧‍👦",offerVal:10,address:"Old Manali Village, Manali, HP",mapQ:"Drifters Inn Restaurant Manali",lat:"32.2489",lng:"77.1768"},
+    ]
+  },
+  kerala:{
+    weather:"28°C Tropical 🌴",region:"God's Own Country • South India",
+    places:["Alleppey Backwaters","Munnar Tea Gardens","Wayanad Forest","Thekkady","Kovalam Beach","Varkala Cliff","Kochi Fort"],
+    activities:["Houseboat stay","Ayurveda spa","Tea estate walk","Kathakali show","Elephant sanctuary"],
+    img:"https://images.unsplash.com/photo-1602216056096-3b40cc0c9944",
+    famousPlaces:[
+      {name:"Alleppey Backwaters",type:"Houseboat • Nature",dist:"0 km",icon:"🚤",desc:"Venice of the East — houseboat cruise through lagoons and canals"},
+      {name:"Munnar Tea Gardens",type:"Hill Station • Tea",dist:"170 km",icon:"🍵",desc:"Lush green tea estates at 1600m altitude — breathtaking panoramas"},
+      {name:"Periyar Wildlife Sanctuary",type:"Wildlife • Safari",dist:"140 km",icon:"🐘",desc:"Tiger reserve with elephant safari by boat on Periyar Lake"},
+      {name:"Fort Kochi",type:"Heritage • Colonial",dist:"85 km",icon:"⛪",desc:"Unique blend of Portuguese, Dutch and British heritage"},
+      {name:"Varkala Beach",type:"Cliff Beach • Spiritual",dist:"60 km",icon:"🏖️",desc:"Stunning cliffside beach — only mineral water beach in Kerala"},
+      {name:"Wayanad Forest",type:"Forest • Trek",dist:"130 km",icon:"🌿",desc:"Tribal villages, bamboo forests and stunning Chembra Peak trek"},
+    ],
+    gyms:[
+      {name:"Gold's Gym Kochi",rating:"4.7",timing:"5AM–11PM",fee:"₹2,500/month",facilities:"Full Equipment • Pool • Sauna • Crossfit",address:"MG Road, Ernakulam, Kochi",badge:"Premium"},
+      {name:"Fitness One Alleppey",rating:"4.3",timing:"6AM–9PM",fee:"₹900/month",facilities:"Weights • Cardio • Yoga",address:"Near Alleppey Beach, Kerala",badge:"Popular"},
+      {name:"Ayur Wellness Kovalam",rating:"4.8",timing:"6AM–8PM",fee:"₹1,500/month",facilities:"Yoga • Ayurveda • Meditation • Beach Access",address:"Kovalam Beach Road, Trivandrum",badge:"Wellness"},
+    ],
+    hotels:[
+      {name:"Kumarakom Lake Resort",stars:5,price:16000,img:"https://images.unsplash.com/photo-1566073771259-6a8506099945",amenities:"Lake View • Spa • Houseboat • Pool",tag:"Backwater Luxury",badge:"b-orange",address:"Kumarakom, Kottayam, Kerala",mapQ:"Kumarakom Lake Resort Kerala",lat:"9.6171",lng:"76.4263"},
+      {name:"Taj Malabar Kochi",stars:5,price:12000,img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",amenities:"Harbour View • Pool • Seafood",tag:"Heritage Harbour",badge:"b-blue",address:"Willingdon Island, Kochi, Kerala",mapQ:"Taj Malabar Resort Kochi Kerala",lat:"9.9597",lng:"76.2771"},
+      {name:"Brunton Boatyard",stars:4,price:7500,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",amenities:"Fort Kochi • Historic Building",tag:"Colonial Heritage",badge:"b-green",address:"1/269 Calvathy Road, Fort Kochi, Kerala",mapQ:"Brunton Boatyard Hotel Fort Kochi",lat:"9.9638",lng:"76.2421"},
+      {name:"Somatheeram Ayurveda",stars:4,price:5800,img:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304",amenities:"Ayurveda • Yoga • Beachside",tag:"Wellness Retreat",badge:"b-green",address:"Chowara Beach, Kovalam, Trivandrum, Kerala",mapQ:"Somatheeram Ayurveda Resort Kovalam",lat:"8.3533",lng:"76.9782"},
+    ],
+    restaurants:[
+      {name:"Malabar Junction",cuisine:"Kerala • Seafood • Malabar",rating:4.9,priceFor2:2000,img:"https://images.unsplash.com/photo-1544025162-d76694265947",speciality:"Karimeen Pollichathu, Fish Molee",offer:"Free Kerala banana dessert 🍌",offerVal:0,address:"1/268 Parade Road, Fort Kochi, Kerala",mapQ:"Malabar Junction Restaurant Fort Kochi",lat:"9.9632",lng:"76.2432"},
+      {name:"Villa Maya Kochi",cuisine:"Kerala Fine Dining • Dutch Heritage",rating:4.8,priceFor2:3500,img:"https://images.unsplash.com/photo-1513104890138-7c749659a591",speciality:"Prawn Moilee, Duck Roast",offer:"Complimentary ada payasam 🍯",offerVal:0,address:"1/884 Airport Road, Kochi, Kerala",mapQ:"Villa Maya Restaurant Kochi Kerala",lat:"10.0094",lng:"76.3076"},
+      {name:"Dhe Puttu",cuisine:"Street Food • Puttu • Kerala Snacks",rating:4.7,priceFor2:400,img:"https://images.unsplash.com/photo-1563379091339-03246963d29a",speciality:"100+ Puttu varieties, Kadala Curry",offer:"3 puttu flavors for price of 2 🌾",offerVal:0,address:"Convent Road, Ernakulam, Kochi",mapQ:"Dhe Puttu Restaurant Kochi Kerala",lat:"9.9847",lng:"76.2912"},
+    ]
+  },
+  agra:{
+    weather:"32°C Clear ☀️",region:"City of Taj • Uttar Pradesh",
+    places:["Taj Mahal","Agra Fort","Fatehpur Sikri","Mehtab Bagh","Itmad-ud-Daulah","Kinari Bazaar","Sikandra"],
+    activities:["Sunrise at Taj Mahal","Mughal cuisine tasting","Marble inlay workshop","Bazaar shopping","Fort light show"],
+    img:"https://images.unsplash.com/photo-1564507592333-c60657eea523",
+    famousPlaces:[
+      {name:"Taj Mahal",type:"UNESCO Wonder • Monument",dist:"0 km",icon:"🕌",desc:"7th Wonder of the World — white marble mausoleum by Shah Jahan"},
+      {name:"Agra Fort",type:"UNESCO Heritage • Fort",dist:"2.5 km",icon:"🏯",desc:"Massive 16th century Mughal fort — once home to Shah Jahan"},
+      {name:"Fatehpur Sikri",type:"UNESCO Heritage • Ghost City",dist:"40 km",icon:"⛩️",desc:"Akbar's abandoned Mughal capital — perfectly preserved architecture"},
+      {name:"Mehtab Bagh",type:"Garden • Night View",dist:"1 km",icon:"🌙",desc:"Best moonlit view of Taj Mahal across Yamuna river"},
+      {name:"Itmad-ud-Daulah",type:"Baby Taj • Tomb",dist:"3 km",icon:"🏛️",desc:"First marble tomb in India — known as Baby Taj"},
+      {name:"Kinari Bazaar",type:"Market • Shopping",dist:"2 km",icon:"🛒",desc:"Famous for leather goods, marble crafts and Petha sweets"},
+    ],
+    gyms:[
+      {name:"Gold's Gym Agra",rating:"4.5",timing:"5:30AM–10:30PM",fee:"₹1,800/month",facilities:"Full Equipment • Cardio • Steam",address:"Sanjay Palace, Agra",badge:"Premium"},
+      {name:"Fit & Fine Gym",rating:"4.2",timing:"6AM–9PM",fee:"₹900/month",facilities:"Basic Weights • Treadmill",address:"Near Taj Mahal Road, Agra",badge:"Budget"},
+      {name:"Body Temple Gym",rating:"4.4",timing:"5AM–10PM",fee:"₹1,200/month",facilities:"CrossFit • Boxing • Yoga",address:"Vibhav Nagar, Agra",badge:"Trending"},
+    ],
+    hotels:[
+      {name:"The Oberoi Amarvilas",stars:5,price:35000,img:"https://images.unsplash.com/photo-1566073771259-6a8506099945",amenities:"Taj View • Pool • Spa • Fine Dining",tag:"Taj Mahal View",badge:"b-orange",address:"Taj East Gate Road, Agra, UP",mapQ:"Oberoi Amarvilas Hotel Agra",lat:"27.1731",lng:"78.0421"},
+      {name:"ITC Mughal Resort",stars:5,price:14000,img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",amenities:"Mughal Garden • Pool • Kaya Kalp Spa",tag:"Mughal Heritage",badge:"b-blue",address:"Fatehabad Road, Agra, UP",mapQ:"ITC Mughal Resort Spa Agra",lat:"27.1668",lng:"78.0338"},
+      {name:"Hotel Clarks Shiraz",stars:4,price:5500,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",amenities:"Taj View Rooftop • Pool",tag:"Taj View Budget",badge:"b-green",address:"54 Taj Road, Agra, Uttar Pradesh",mapQ:"Hotel Clarks Shiraz Agra",lat:"27.1721",lng:"78.0095"},
+      {name:"Hotel Sidhartha",stars:3,price:1500,img:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304",amenities:"Near Taj • Budget Rooms",tag:"Budget",badge:"b-green",address:"Near Taj Mahal, Agra, Uttar Pradesh",mapQ:"Hotel Sidhartha Agra",lat:"27.1745",lng:"78.0385"},
+    ],
+    restaurants:[
+      {name:"Pinch of Spice",cuisine:"North Indian • Mughlai",rating:4.8,priceFor2:1200,img:"https://images.unsplash.com/photo-1544025162-d76694265947",speciality:"Mughlai Biryani, Galouti Kebab",offer:"Free Petha box on bills above ₹800 🍬",offerVal:0,address:"Near Hotel Atithi, Taj Nagri, Agra",mapQ:"Pinch of Spice Restaurant Agra",lat:"27.1767",lng:"78.0081"},
+      {name:"Esphahan Amarvilas",cuisine:"Royal Mughlai Fine Dining",rating:4.9,priceFor2:6000,img:"https://images.unsplash.com/photo-1513104890138-7c749659a591",speciality:"Korma-e-Mahi, Murgh Malai",offer:"Taj view table — welcome drink 🥂",offerVal:0,address:"Taj East Gate Road, Agra",mapQ:"Esphahan Restaurant Amarvilas Agra",lat:"27.1731",lng:"78.0421"},
+      {name:"Mama Chicken Agra",cuisine:"Street Food • Agra Specials",rating:4.6,priceFor2:300,img:"https://images.unsplash.com/photo-1563379091339-03246963d29a",speciality:"Bedai Kachori, Jalebi, Paratha",offer:"Extra sweet petha free with breakfast 🍯",offerVal:0,address:"Near Taj Mahal East Gate, Agra",mapQ:"Mama Chicken Restaurant Agra",lat:"27.1751",lng:"78.0421"},
+    ]
+  },
+  lucknow:{
+    weather:"34°C Sunny ☀️",region:"City of Nawabs • Uttar Pradesh",
+    places:["Bara Imambara","Rumi Darwaza","British Residency","Hazratganj","Chota Imambara","Dilkusha Kothi","Kaiserbagh"],
+    activities:["Nawabi food walk","Chikankari shopping","Bhoolaiya maze tour","Heritage walk","Urdu poetry evening"],
+    img:"https://images.unsplash.com/photo-1590080877777-95f0f90d8e0f",
+    famousPlaces:[
+      {name:"Bara Imambara",type:"Heritage • Architecture",dist:"2.5 km",icon:"🕌",desc:"Magnificent 18th century Shia shrine with largest arched hall in Asia"},
+      {name:"Rumi Darwaza",type:"Gateway • Mughal",dist:"2.3 km",icon:"🏛️",desc:"60-foot Nawabi gateway — model for the British Parliament clock tower"},
+      {name:"Bhool Bhulaiya",type:"Labyrinth • Heritage",dist:"2.5 km",icon:"🌀",desc:"Intricate maze inside Bara Imambara — 1000+ corridors"},
+      {name:"British Residency",type:"Colonial • Museum",dist:"4 km",icon:"🏚️",desc:"Ruins of 1857 uprising siege — poignant war memorial"},
+      {name:"Hazratganj",type:"Shopping • Heritage",dist:"3 km",icon:"🛍️",desc:"Lucknow's iconic colonial-era shopping district and food street"},
+      {name:"Chota Imambara",type:"Palace • Heritage",dist:"2.8 km",icon:"🌙",desc:"Palace of lights — stunning chandeliers and gilded interior"},
+    ],
+    gyms:[
+      {name:"Gold's Gym Gomti Nagar",rating:"4.7",timing:"5AM–11PM",fee:"₹2,200/month",facilities:"Full Equipment • Pool • Steam • Trainer",address:"Gomti Nagar, Lucknow",badge:"Premium"},
+      {name:"Cult.fit Hazratganj",rating:"4.5",timing:"6AM–10PM",fee:"₹1,800/month",facilities:"HIIT • Yoga • Boxing • Dance",address:"Hazratganj, Lucknow",badge:"Trending"},
+      {name:"Fitness Plus Alambagh",rating:"4.3",timing:"6AM–9PM",fee:"₹1,000/month",facilities:"Weights • Cardio • Aerobics",address:"Alambagh, Lucknow",badge:"Budget"},
+    ],
+    hotels:[
+      {name:"Taj Mahal Lucknow",stars:5,price:8500,img:"https://images.unsplash.com/photo-1566073771259-6a8506099945",amenities:"Pool • Spa • Mughal Restaurant",tag:"Nawabi Luxury",badge:"b-orange",address:"Vipin Khand, Gomti Nagar, Lucknow",mapQ:"Taj Mahal Hotel Lucknow",lat:"26.8640",lng:"80.9939"},
+      {name:"Hyatt Regency Lucknow",stars:5,price:7200,img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",amenities:"Pool • Club Lounge • Modern Rooms",tag:"Modern Luxury",badge:"b-blue",address:"Vibhuti Khand, Gomti Nagar, Lucknow",mapQ:"Hyatt Regency Lucknow",lat:"26.8621",lng:"80.9947"},
+      {name:"Piccadily Hotel",stars:4,price:3800,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",amenities:"Restaurant • Pool • Near Hazratganj",tag:"City Center",badge:"b-green",address:"Narhi, Hazratganj, Lucknow",mapQ:"Piccadily Hotel Lucknow",lat:"26.8517",lng:"80.9434"},
+      {name:"Hotel Lebua Lucknow",stars:3,price:1800,img:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304",amenities:"Nawabi Decor • Restaurant",tag:"Budget Heritage",badge:"b-green",address:"Near Rumi Darwaza, Lucknow",mapQ:"Hotel Lebua Lucknow",lat:"26.8706",lng:"80.9133"},
+    ],
+    restaurants:[
+      {name:"Tunday Kababi",cuisine:"Mughlai • Kebabs • Since 1905",rating:4.9,priceFor2:500,img:"https://images.unsplash.com/photo-1544025162-d76694265947",speciality:"Galouti Kebab, Shami Kebab, Biryani",offer:"Free Sheermal with Kebab platter 🍞",offerVal:0,address:"Aminabad, Lucknow, Uttar Pradesh",mapQ:"Tunday Kababi Aminabad Lucknow",lat:"26.8520",lng:"80.9394"},
+      {name:"Dastarkhwan",cuisine:"Awadhi • Non-Veg • Dum Cooking",rating:4.8,priceFor2:900,img:"https://images.unsplash.com/photo-1513104890138-7c749659a591",speciality:"Dum Biryani, Nihari, Nalli Korma",offer:"20% off on family thali (feeds 4) 👨‍👩‍👧‍👦",offerVal:20,address:"6-A, Ashok Marg, Hazratganj, Lucknow",mapQ:"Dastarkhwan Restaurant Lucknow",lat:"26.8502",lng:"80.9453"},
+      {name:"Royal Cafe Hazratganj",cuisine:"Pure Veg • Basket Chaat • Sweets",rating:4.7,priceFor2:400,img:"https://images.unsplash.com/photo-1563379091339-03246963d29a",speciality:"Basket Chaat, Kulfi Falooda, Makkhan",offer:"Free Kulfi with every chaat order 🍨",offerVal:0,address:"Hazratganj, Lucknow, Uttar Pradesh",mapQ:"Royal Cafe Hazratganj Lucknow",lat:"26.8499",lng:"80.9462"},
+    ]
+  },
+  shimla:{
+    weather:"18°C Pleasant 🌤️",region:"Queen of Hills • Himachal Pradesh",
+    places:["The Ridge","Jakhu Temple","Kufri","Mall Road","Christ Church","Naldehra Golf","Chadwick Falls"],
+    activities:["Toy train ride","Horse riding at Kufri","Snow point visit","Mall Road shopping","Sunset Prospect Hill"],
+    img:"https://images.unsplash.com/photo-1626621341517-bbf3d9990a23",
+    famousPlaces:[
+      {name:"The Ridge",type:"Open Space • Views",dist:"0.5 km",icon:"⛰️",desc:"Large open space in heart of Shimla — best views of Himalayas"},
+      {name:"Jakhu Temple",type:"Temple • Monkeys",dist:"2.5 km",icon:"🐒",desc:"108-ft Hanuman statue at 8048 ft — beware of mischievous monkeys!"},
+      {name:"Kufri",type:"Hill Station • Snow",dist:"16 km",icon:"❄️",desc:"Snow point with ski slopes and yak rides in winter"},
+      {name:"Kalka-Shimla Toy Train",type:"UNESCO Heritage • Train",dist:"1 km",icon:"🚂",desc:"UNESCO heritage narrow-gauge railway through 102 tunnels"},
+      {name:"Christ Church",type:"Church • Gothic",dist:"0.8 km",icon:"⛪",desc:"Second oldest church in North India — beautiful neo-gothic architecture"},
+      {name:"Chadwick Falls",type:"Waterfall • Trek",dist:"7 km",icon:"💧",desc:"67m waterfall through dense forest — best after monsoon"},
+    ],
+    gyms:[
+      {name:"Fitness Hub Shimla",rating:"4.4",timing:"6AM–9PM",fee:"₹1,200/month",facilities:"Weights • Cardio • Yoga",address:"Near Mall Road, Shimla, HP",badge:"Popular"},
+      {name:"Iron Pumpers Gym",rating:"4.2",timing:"6AM–8PM",fee:"₹800/month",facilities:"Free Weights • Treadmill",address:"Lakkar Bazaar, Shimla",badge:"Budget"},
+      {name:"Himalayan Wellness Center",rating:"4.6",timing:"7AM–8PM",fee:"₹1,500/month",facilities:"Yoga • Meditation • Nature Walks",address:"Chaura Maidan, Shimla",badge:"Wellness"},
+    ],
+    hotels:[
+      {name:"Wildflower Hall Oberoi",stars:5,price:22000,img:"https://images.unsplash.com/photo-1566073771259-6a8506099945",amenities:"Cedar Forest • Spa • Pool • Mountain Views",tag:"Himalayan Retreat",badge:"b-orange",address:"Chharabra, Near Shimla, Himachal Pradesh",mapQ:"Wildflower Hall Oberoi Shimla",lat:"31.1386",lng:"77.2021"},
+      {name:"The Cecil Shimla",stars:5,price:11000,img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",amenities:"Heritage • Pool • Fine Dining",tag:"Colonial Heritage",badge:"b-blue",address:"Chaura Maidan, Shimla, HP",mapQ:"The Cecil Hotel Shimla",lat:"31.1038",lng:"77.1690"},
+      {name:"Hotel Combermere",stars:4,price:4500,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",amenities:"Mall Road Location • Mountain View",tag:"Prime Location",badge:"b-green",address:"The Mall Road, Shimla, Himachal Pradesh",mapQ:"Hotel Combermere Shimla",lat:"31.1048",lng:"77.1734"},
+      {name:"Zostel Shimla",stars:2,price:500,img:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304",amenities:"Dorm • Ridge Views",tag:"Budget",badge:"b-green",address:"Near The Ridge, Shimla, HP",mapQ:"Zostel Shimla Himachal Pradesh",lat:"31.1047",lng:"77.1720"},
+    ],
+    restaurants:[
+      {name:"Cafe Simla Times",cuisine:"Himachali • Continental • Café",rating:4.7,priceFor2:900,img:"https://images.unsplash.com/photo-1544025162-d76694265947",speciality:"Sidu, Chha Gosht, Himachali Thali",offer:"Free apple cider with Himachali Thali 🍎",offerVal:0,address:"The Mall, Shimla, Himachal Pradesh",mapQ:"Cafe Simla Times Mall Road Shimla",lat:"31.1048",lng:"77.1734"},
+      {name:"Honey Hut Restaurant",cuisine:"Multi-cuisine • North Indian",rating:4.5,priceFor2:800,img:"https://images.unsplash.com/photo-1513104890138-7c749659a591",speciality:"Butter Chicken, Momos, Pasta",offer:"15% off on groups (4+) 🍽️",offerVal:15,address:"Near Lakkar Bazaar, Shimla, HP",mapQ:"Honey Hut Restaurant Shimla",lat:"31.1017",lng:"77.1745"},
+      {name:"Ashiana Restaurant",cuisine:"Indian • Mall Road View",rating:4.6,priceFor2:1200,img:"https://images.unsplash.com/photo-1563379091339-03246963d29a",speciality:"Himachali Dham, Rajma Rice, Trout",offer:"Birthday dessert complimentary 🎂",offerVal:0,address:"The Ridge, Shimla, Himachal Pradesh",mapQ:"Ashiana Restaurant The Ridge Shimla",lat:"31.1049",lng:"77.1723"},
+    ]
+  },
+  varanasi:{
+    weather:"30°C Warm ☀️",region:"City of Light • Uttar Pradesh",
+    places:["Dashashwamedh Ghat","Kashi Vishwanath","Sarnath","Assi Ghat","Ramnagar Fort","Manikarnika Ghat","Tulsi Manas"],
+    activities:["Ganga Aarti at sunset","Boat ride at sunrise","Silk weaving workshop","Lassi tasting","Cremation ghat visit"],
+    img:"https://images.unsplash.com/photo-1561361513-2d000a50f396",
+    famousPlaces:[
+      {name:"Dashashwamedh Ghat",type:"Ghat • Aarti",dist:"1.2 km",icon:"🪔",desc:"Oldest and most spectacular ghat — world-famous Ganga Aarti ceremony"},
+      {name:"Kashi Vishwanath Temple",type:"Temple • Jyotirlinga",dist:"1.5 km",icon:"🛕",desc:"One of 12 Jyotirlingas — most sacred Shiva temple in India"},
+      {name:"Sarnath",type:"Buddhist Heritage • UNESCO",dist:"10 km",icon:"☸️",desc:"Where Buddha gave his first sermon — Dhamek Stupa & Ashoka Pillar"},
+      {name:"Manikarnika Ghat",type:"Sacred • Cremation",dist:"1.8 km",icon:"🔥",desc:"Most sacred cremation ghat — burning continuously for 3000+ years"},
+      {name:"Ramnagar Fort",type:"Fort • Museum",dist:"14 km",icon:"🏰",desc:"18th century fort of the Maharaja of Varanasi — royal museum inside"},
+      {name:"Tulsi Manas Temple",type:"Temple • Literature",dist:"3 km",icon:"📖",desc:"Modern temple where Ramcharitmanas was written — carved walls"},
+    ],
+    gyms:[
+      {name:"Fit India Gym BHU Road",rating:"4.3",timing:"5AM–10PM",fee:"₹700/month",facilities:"Basic Equipment • Yoga",address:"Near BHU, Varanasi",badge:"Budget"},
+      {name:"Power Zone Gym",rating:"4.4",timing:"6AM–9PM",fee:"₹1,000/month",facilities:"Weights • Cardio • Personal Training",address:"Sigra, Varanasi",badge:"Popular"},
+      {name:"Assi Wellness Yoga Center",rating:"4.8",timing:"5AM–8PM",fee:"₹1,200/month",facilities:"Yoga • Meditation • Pranayama • Ganga View",address:"Assi Ghat, Varanasi",badge:"Spiritual"},
+    ],
+    hotels:[
+      {name:"Taj Nadesar Palace",stars:5,price:18000,img:"https://images.unsplash.com/photo-1566073771259-6a8506099945",amenities:"Palace Heritage • Gardens • Spa",tag:"Royal Heritage",badge:"b-orange",address:"Nadesar Palace Grounds, Varanasi, UP",mapQ:"Taj Nadesar Palace Varanasi",lat:"25.3302",lng:"83.0002"},
+      {name:"BrijRama Palace",stars:5,price:12000,img:"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa",amenities:"Ganga View • Heritage Haveli",tag:"Ganga Front",badge:"b-blue",address:"Darbhanga Ghat, Varanasi, UP",mapQ:"BrijRama Palace Hotel Varanasi",lat:"25.3109",lng:"83.0107"},
+      {name:"Ramada Varanasi",stars:4,price:4800,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",amenities:"Pool • Ghat Transport • Restaurant",tag:"Modern Comfort",badge:"b-green",address:"The Mall Road, Cantonment, Varanasi",mapQ:"Ramada by Wyndham Varanasi",lat:"25.3409",lng:"82.9834"},
+      {name:"Stops Hostel",stars:2,price:450,img:"https://images.unsplash.com/photo-1631049307264-da0ec9d70304",amenities:"Ghat Views • Cultural Activities",tag:"Backpacker Hub",badge:"b-green",address:"Near Assi Ghat, Varanasi, UP",mapQ:"Stops Hostel Varanasi Assi Ghat",lat:"25.2976",lng:"83.0113"},
+    ],
+    restaurants:[
+      {name:"Aadha-Aadha",cuisine:"Pure Veg • Banarasi Street Food",rating:4.7,priceFor2:500,img:"https://images.unsplash.com/photo-1544025162-d76694265947",speciality:"Kachori Sabzi, Malaiyo, Tamatar Chaat",offer:"Free Banarasi paan after every meal 🌿",offerVal:0,address:"Near Dashashwamedh Ghat, Varanasi",mapQ:"Aadha Aadha Restaurant Varanasi",lat:"25.3109",lng:"83.0107"},
+      {name:"Bread of Life Bakery",cuisine:"Café • International • Baked Goods",rating:4.6,priceFor2:700,img:"https://images.unsplash.com/photo-1513104890138-7c749659a591",speciality:"Cakes, Pizzas, Granola Bowls",offer:"10% off for backpackers on Day 1 🎒",offerVal:10,address:"Shivala, Varanasi, Uttar Pradesh",mapQ:"Bread of Life Bakery Varanasi",lat:"25.3079",lng:"83.0118"},
+      {name:"Keshari Restaurant",cuisine:"Pure Veg • North Indian • Thali",rating:4.8,priceFor2:600,img:"https://images.unsplash.com/photo-1563379091339-03246963d29a",speciality:"Unlimited Thali, Thandai, Chena Vada",offer:"Truly unlimited thali refills! 🍛",offerVal:0,address:"Vishwanath Gali, Varanasi, UP",mapQ:"Keshari Restaurant Varanasi",lat:"25.3103",lng:"83.0097"},
+    ]
+  },
+};
+
+const MENUS = {
+  goa:{
+    veg:[
+      {n:"Vegetable Xacuti",d:"Coconut spice curry with mixed veg",p:280,e:"🥬",cal:"220 kcal",recipe:"xacuti_veg",img:"https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=120"},
+      {n:"Aloo Bhaji",d:"Spiced potato with coconut",p:180,e:"🥔",cal:"180 kcal",recipe:"aloo_bhaji",img:"https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=120"},
+      {n:"Cashew Curry",d:"Rich cashew nut Goan curry",p:320,e:"🌰",cal:"280 kcal",recipe:"cashew_curry",img:"https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=120"},
+      {n:"Bebinca Dessert",d:"Traditional 7-layer Goan dessert",p:180,e:"🍮",cal:"310 kcal",recipe:"bebinca",img:"https://images.unsplash.com/photo-1551024506-0bccd828d307?w=120"},
+      {n:"Sol Kadhi",d:"Kokum & coconut milk drink",p:80,e:"🥤",cal:"90 kcal",recipe:"sol_kadhi",img:"https://images.unsplash.com/photo-1544145945-f90425340c7e?w=120"},
+    ],
+    nonveg:[
+      {n:"Prawn Balchao",d:"Spicy tangy prawn Goan pickle curry",p:550,e:"🦐",cal:"320 kcal",recipe:"prawn_balchao",img:"https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=120"},
+      {n:"Fish Curry Rice",d:"Pomfret in coconut curry with steamed rice",p:380,e:"🐟",cal:"420 kcal",recipe:"fish_curry",img:"https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=120"},
+      {n:"Kingfish Fry",d:"Shallow fried whole kingfish",p:480,e:"🐠",cal:"380 kcal",recipe:"kingfish_fry",img:"https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=120"},
+      {n:"Chicken Cafreal",d:"Herb-marinated Goan chicken",p:450,e:"🍗",cal:"360 kcal",recipe:"cafreal",img:"https://images.unsplash.com/photo-1598103442097-8b74394b95c9?w=120"},
+    ]
+  },
+  delhi:{
+    veg:[
+      {n:"Chole Bhature",d:"Spicy chickpea with fried bread",p:160,e:"🫓",cal:"520 kcal",recipe:"chole_bhature",img:"https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=120"},
+      {n:"Paneer Butter Masala",d:"Cottage cheese in rich tomato gravy",p:340,e:"🧀",cal:"380 kcal",recipe:"paneer_butter",img:"https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=120"},
+      {n:"Aloo Paratha + Curd",d:"Stuffed potato paratha with chilled curd",p:180,e:"🥗",cal:"410 kcal",recipe:"aloo_paratha",img:"https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=120"},
+      {n:"Dal Makhani",d:"Slow cooked black lentil in butter",p:280,e:"🫕",cal:"320 kcal",recipe:"dal_makhani",img:"https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=120"},
+      {n:"Jalebi + Rabri",d:"Crispy sweet swirls with cream",p:120,e:"🍯",cal:"350 kcal",recipe:"jalebi",img:"https://images.unsplash.com/photo-1551024506-0bccd828d307?w=120"},
+    ],
+    nonveg:[
+      {n:"Butter Chicken",d:"Tender chicken in creamy tomato gravy",p:380,e:"🍗",cal:"420 kcal",recipe:"butter_chicken",img:"https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=120"},
+      {n:"Seekh Kebab Platter",d:"Minced meat kebabs from tandoor (6 pcs)",p:450,e:"🍢",cal:"360 kcal",recipe:"seekh_kebab",img:"https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=120"},
+      {n:"Mutton Korma",d:"Slow cooked rich Mughlai mutton curry",p:520,e:"🍖",cal:"480 kcal",recipe:"mutton_korma",img:"https://images.unsplash.com/photo-1574653853027-5382a3d23a15?w=120"},
+      {n:"Nihari",d:"Slow cooked meat stew — Delhi's pride",p:420,e:"🥘",cal:"440 kcal",recipe:"nihari",img:"https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=120"},
+      {n:"Chicken Biryani",d:"Fragrant basmati with spiced chicken",p:380,e:"🍚",cal:"580 kcal",recipe:"chicken_biryani",img:"https://images.unsplash.com/photo-1563379091339-03246963d29a?w=120"},
+    ]
+  },
+  default:{
+    veg:[
+      {n:"Paneer Tikka",d:"Marinated & grilled cottage cheese",p:320,e:"🧀",cal:"280 kcal",recipe:"paneer_tikka",img:"https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=120"},
+      {n:"Veg Biryani",d:"Fragrant basmati with mixed vegetables",p:280,e:"🍚",cal:"380 kcal",recipe:"veg_biryani",img:"https://images.unsplash.com/photo-1563379091339-03246963d29a?w=120"},
+      {n:"Dal Tadka",d:"Yellow lentil with cumin tempering",p:220,e:"🫕",cal:"240 kcal",recipe:"dal_tadka",img:"https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=120"},
+      {n:"Palak Paneer",d:"Cottage cheese in spinach gravy",p:300,e:"🥬",cal:"310 kcal",recipe:"palak_paneer",img:"https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=120"},
+      {n:"Gulab Jamun",d:"Soft syrup-soaked milk dumplings (2 pcs)",p:120,e:"🍬",cal:"200 kcal",recipe:"gulab_jamun",img:"https://images.unsplash.com/photo-1551024506-0bccd828d307?w=120"},
+    ],
+    nonveg:[
+      {n:"Butter Chicken",d:"Rich creamy tomato curry chicken",p:380,e:"🍗",cal:"420 kcal",recipe:"butter_chicken",img:"https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=120"},
+      {n:"Mutton Rogan Josh",d:"Kashmiri aromatic mutton curry",p:480,e:"🍖",cal:"460 kcal",recipe:"rogan_josh",img:"https://images.unsplash.com/photo-1574653853027-5382a3d23a15?w=120"},
+      {n:"Chicken Biryani",d:"Aromatic basmati & spiced chicken",p:380,e:"🍚",cal:"580 kcal",recipe:"chicken_biryani",img:"https://images.unsplash.com/photo-1563379091339-03246963d29a?w=120"},
+      {n:"Seekh Kebab",d:"Minced meat from tandoor (4 pcs)",p:380,e:"🍢",cal:"320 kcal",recipe:"seekh_kebab",img:"https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=120"},
+      {n:"Prawn Masala",d:"Spiced prawn in onion tomato gravy",p:450,e:"🦐",cal:"340 kcal",recipe:"prawn_masala",img:"https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=120"},
+    ]
+  }
+};
+
+const RECIPES = {
+  butter_chicken:{name:"Butter Chicken",time:"45 min",serves:4,steps:["1 kg chicken marinate karein: dahi, haldi, laal mirch, adrak-lahsun paste mein 2 ghante.","Tandoor ya pan mein chicken grill karein golden hone tak.","Makhani sauce: pyaz, tomato, kaju blend karein smooth paste banayen.","Ghee mein jeera, tej patta, sauce fry karein 10 min.","Cream, kasuri methi, garam masala milayein. Chicken daalein.","Dhak ke 15 min pakayein. Naan ke saath serve karein! 🧡"],img:"https://images.unsplash.com/photo-1588166524941-3bf61a9c41db"},
+  paneer_tikka:{name:"Paneer Tikka",time:"30 min",serves:3,steps:["200g paneer cube karein. Shimla mirch, pyaz bhi cube karein.","Marinade: hung curd, besan, haldi, red chilli, chaat masala, adrak-lahsun paste.","Paneer ko marinade mein 1 ghanta rakhen.","Skewer pe laga ke grill pan ya oven mein 220°C pe 15 min.","Bich mein palat ke dono taraf grill karein.","Mint chutney aur lemon ke saath serve karein! 💚"],img:"https://images.unsplash.com/photo-1565557623262-b51c2513a641"},
+  chicken_biryani:{name:"Chicken Biryani",time:"1 hr 20 min",serves:4,steps:["1 kg chicken: dahi, biryani masala, kesar, fried onions mein marinate karein.","Basmati rice 70% pakayein alag se.","Bhunao chicken marinade mein 15 min.","Layering: rice, chicken, fried onions, mint, ghee.","Dum: 25 min dhak ke pakayein.","Raita ke saath serve karein! 🍚"],img:"https://images.unsplash.com/photo-1563379091339-03246963d29a"},
+  dal_makhani:{name:"Dal Makhani",time:"8 hrs (overnight)",serves:4,steps:["Kali dal aur rajma raat bhar bhigo dein.","Pressure cooker mein 8-10 seeti aane tak pakayein.","Ghee mein adrak-lahsun, tomato puree bhunayen.","Dal daalein aur 1 ghanta slow cook karein.","Cream, butter, kasuri methi finish mein daalein.","Naan ya paratha ke saath serve karein! 🍛"],img:"https://images.unsplash.com/photo-1546833999-b9f581a1996d"},
+  default:{name:"Special Recipe",time:"30-45 min",serves:3,steps:["Saari ingredients tayyar karein aur measure karein.","Medium aanchin pan garam karein with oil.","Base masala: pyaz, tamatar, adrak-lahsun bhunao.","Main ingredients daalein aur pakayein.","Spices, garnish finish mein daalein.","Fresh roti ya chawal ke saath serve karein!"],img:"https://images.unsplash.com/photo-1585937421612-70a008356fbe"}
+};
+
+/* ═══ STATE ═══════════════════════════════════════════ */
+let currentCity='',cartItems={},selectedTable=null,myLat=null,myLng=null,myCity='';
+let currentRestaurant=null,currentHotel=null,tripPlan=null,reviewStars=4;
+
+/* ═══ DATA STORAGE INFO ═══════════════════════════════ */
+// Sab data browser ke localStorage mein store hota hai
+// User ka login, cart, bookings, reviews — sab local session mein
+
+/* ═══ FOOTER ═══════════════════════════════════════════ */
+function buildFooter(){
+  return `
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div class="footer-col">
+        <h4>✈️ TripAI</h4>
+        <div style="font-size:13px;color:#94a3b8;line-height:1.7;">India's smartest AI-powered trip planner. Real hotels, authentic restaurants, voice assistant — sab ek jagah.</div>
+        <div class="footer-award" style="margin-top:14px;cursor:pointer;" onclick="openAwardPopup()">
+          <div class="aw-icon">🏆</div>
+          <div><div class="aw-title">Contact Center of the Year 2025</div><div class="aw-text">Excellence in Customer Service Award — Travel Category</div></div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>📞 Contact Us</h4>
+        <a onclick="openSupportPopup()">Customer Support</a>
+        <a onclick="openGuaranteePopup()">Service Guarantee</a>
+        <a onclick="openMoreServicePopup()">More Service Info</a>
+        <a onclick="openEmergencyPopup()">Emergency Helpline: 1800-TripAI</a>
+        <a onclick="openEmailPopup()">Email: support@tripai.in</a>
+        <a onclick="openLiveChatPopup()">Live Chat 24/7</a>
+      </div>
+      <div class="footer-col">
+        <h4>🏢 About</h4>
+        <a onclick="openAboutPopup()">About TripAI</a>
+        <a onclick="openNewsPopup()">News & Media</a>
+        <a onclick="openCareersPopup()">Careers</a>
+        <a onclick="openTermsPopup()">Terms & Conditions</a>
+        <a onclick="openPrivacyPopup()">Privacy Statement</a>
+        <a onclick="openAccessPopup()">Accessibility Statement</a>
+        <a onclick="openGroupPopup()">About TripAI Group</a>
+      </div>
+      <div class="footer-col">
+        <h4>🔧 Other Services</h4>
+        <a onclick="openInvestorPopup()">Investor Relations</a>
+        <a onclick="openRewardsPopup()">TripAI Rewards</a>
+        <a onclick="openAffiliatePopup()">Affiliate Program</a>
+        <a onclick="openListPropertyPopup()">List Your Property</a>
+        <a onclick="openAllHotelsPopup()">All Hotels</a>
+        <a onclick="openSupplierPopup()">Become a Supplier</a>
+        <a onclick="openSecurityPopup()">Security</a>
+      </div>
+    </div>
+    <div class="footer-pay">
+      <span style="color:#fff;font-size:13px;font-weight:700;margin-right:8px;">💳 Payment Methods:</span>
+      <span class="pay-badge" onclick="openPaymentPopup('visa')">💳 Visa</span>
+      <span class="pay-badge" onclick="openPaymentPopup('mastercard')">💳 Mastercard</span>
+      <span class="pay-badge" onclick="openPaymentPopup('netbanking')">🏦 Net Banking</span>
+      <span class="pay-badge" onclick="openPaymentPopup('upi')">📱 UPI / GPay</span>
+      <span class="pay-badge" onclick="openPaymentPopup('phonepe')">📱 PhonePe</span>
+      <span class="pay-badge" onclick="openPaymentPopup('paytm')">💰 Paytm</span>
+      <span class="pay-badge" onclick="openPaymentPopup('debit')">🏧 Debit Card</span>
+      <span class="pay-badge" onclick="openPaymentPopup('cash')">💵 Cash</span>
+    </div>
+    <div class="footer-pay" style="border-top:1px solid #1e293b;">
+      <span style="color:#fff;font-size:13px;font-weight:700;margin-right:8px;">🤝 Our Partners:</span>
+      <span class="pay-badge" onclick="openPartnerPopup('indigo')">✈️ IndiGo</span>
+      <span class="pay-badge" onclick="openPartnerPopup('airindia')">✈️ Air India</span>
+      <span class="pay-badge" onclick="openPartnerPopup('irctc')">🚂 IRCTC</span>
+      <span class="pay-badge" onclick="openPartnerPopup('oyo')">🏨 OYO</span>
+      <span class="pay-badge" onclick="openPartnerPopup('ola')">🚗 Ola</span>
+      <span class="pay-badge" onclick="openPartnerPopup('uber')">🚗 Uber</span>
+      <span class="pay-badge" onclick="openPartnerPopup('insurance')">🛡️ IRDA Insurance</span>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2025 TripAI India Pvt. Ltd. All rights reserved.</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <a onclick="openTermsPopup()">Terms</a>
+        <a onclick="openPrivacyPopup()">Privacy</a>
+        <a onclick="openSecurityPopup()">Security</a>
+        <a onclick="openSitemapPopup()">Sitemap</a>
+      </div>
+    </div>
+  </footer>`;
+}
+document.getElementById('homeFooter').innerHTML = buildFooter();
+
+/* ═══ GENERIC POPUP ENGINE ═══════════════════════════ */
+function openGenPopup(title, gradientClass, bodyHTML){
+  document.getElementById('genHeadTitle').textContent = title;
+  document.getElementById('genHead').style.background = gradientClass;
+  document.getElementById('genBody').innerHTML = bodyHTML;
+  document.getElementById('genPopup').classList.remove('hidden');
+}
+function closeGenPopup(){ document.getElementById('genPopup').classList.add('hidden'); }
+
+/* ── CONTACT POPUPS ── */
+function openSupportPopup(){
+  openGenPopup('📞 Customer Support','linear-gradient(135deg,#1a56db,#8b5cf6)',`
+    <div style="font-size:14px;line-height:1.8;">
+      <div style="background:#f0f9ff;border-radius:14px;padding:16px;margin-bottom:12px;">
+        <div style="font-weight:800;font-size:15px;color:#0369a1;margin-bottom:8px;">📞 Phone Support</div>
+        <div style="font-size:20px;font-weight:800;color:#1a56db;letter-spacing:2px;">1800-TRIP-AI</div>
+        <div style="font-size:12px;color:var(--muted);">1800-8747-24 • Toll Free • 24x7</div>
+        <div style="font-size:12px;color:var(--success);margin-top:4px;">✅ Average wait time: 2 minutes</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:#f0fdf4;border-radius:12px;padding:14px;">
+          <div style="font-weight:700;color:#166534;">✈️ Flight Issues</div>
+          <div style="font-size:12px;color:var(--muted);">Press 1</div>
+        </div>
+        <div style="background:#fff7ed;border-radius:12px;padding:14px;">
+          <div style="font-weight:700;color:#c2410c;">🏨 Hotel Booking</div>
+          <div style="font-size:12px;color:var(--muted);">Press 2</div>
+        </div>
+        <div style="background:#eff6ff;border-radius:12px;padding:14px;">
+          <div style="font-weight:700;color:#1d4ed8;">💳 Payment Issues</div>
+          <div style="font-size:12px;color:var(--muted);">Press 3</div>
+        </div>
+        <div style="background:#fdf4ff;border-radius:12px;padding:14px;">
+          <div style="font-weight:700;color:#7c3aed;">🍽️ Restaurant</div>
+          <div style="font-size:12px;color:var(--muted);">Press 4</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;background:#fef2f2;border-radius:12px;padding:14px;">
+        <div style="font-weight:700;color:#dc2626;">🆘 Emergency 24x7</div>
+        <div style="font-size:20px;font-weight:800;color:#dc2626;">1800-911-TRIP</div>
+        <div style="font-size:12px;color:var(--muted);">Medical, accident, stranded traveller</div>
+      </div>
+    </div>
+  `);
+}
+
+function openEmergencyPopup(){
+  openGenPopup('🚨 Emergency Helpline','linear-gradient(135deg,#dc2626,#f97316)',`
+    <div style="text-align:center;padding:10px 0;">
+      <div style="font-size:4rem;margin-bottom:10px;">🚨</div>
+      <div style="font-size:2rem;font-weight:800;color:#dc2626;letter-spacing:3px;">1800-TRIPAI</div>
+      <div style="font-size:13px;color:var(--muted);margin:8px 0 20px;">1800-8747-24 • Toll Free • Available 24x7</div>
+      <div style="background:#fef2f2;border-radius:14px;padding:16px;text-align:left;margin-bottom:12px;">
+        <div style="font-weight:800;color:#dc2626;margin-bottom:8px;">Emergency Services:</div>
+        <div style="font-size:13px;line-height:2;">🏥 Medical Emergency Assistance<br>🔑 Lost Passport / Documents<br>🏨 Emergency Accommodation<br>✈️ Missed Flight Rebooking<br>💳 Card Blocked / Payment Failed<br>👮 Police / Legal Assistance</div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);">Also WhatsApp: +91-98765-TRIP</div>
+    </div>
+  `);
+}
+
+function openEmailPopup(){
+  openGenPopup('📧 Email Support','linear-gradient(135deg,#059669,#34d399)',`
+    <div style="padding:10px 0;">
+      <div style="background:#f0fdf4;border-radius:14px;padding:18px;margin-bottom:12px;">
+        <div style="font-size:18px;font-weight:800;color:#166534;">support@tripai.in</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">Average reply time: within 2 hours</div>
+      </div>
+      <div style="display:grid;gap:10px;">
+        <div style="background:#f8faff;border-radius:12px;padding:14px;">
+          <div style="font-weight:700;">📋 Booking Queries</div>
+          <div style="font-size:12px;color:var(--muted);">bookings@tripai.in</div>
+        </div>
+        <div style="background:#f8faff;border-radius:12px;padding:14px;">
+          <div style="font-weight:700;">💳 Refunds & Payments</div>
+          <div style="font-size:12px;color:var(--muted);">refunds@tripai.in</div>
+        </div>
+        <div style="background:#f8faff;border-radius:12px;padding:14px;">
+          <div style="font-weight:700;">🏨 Hotel Partners</div>
+          <div style="font-size:12px;color:var(--muted);">partners@tripai.in</div>
+        </div>
+        <div style="background:#f8faff;border-radius:12px;padding:14px;">
+          <div style="font-weight:700;">📢 Media / PR</div>
+          <div style="font-size:12px;color:var(--muted);">media@tripai.in</div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function openLiveChatPopup(){
+  openGenPopup('💬 Live Chat 24/7','linear-gradient(135deg,#8b5cf6,#ec4899)',`
+    <div style="padding:10px 0;">
+      <div style="background:linear-gradient(135deg,#f5f3ff,#fdf4ff);border:2px solid #c4b5fd;border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;">
+        <div style="font-size:2.5rem;margin-bottom:8px;">🤖</div>
+        <div style="font-weight:800;font-size:16px;color:#6d28d9;">TripBot AI is Online!</div>
+        <div style="font-size:13px;color:var(--muted);margin:6px 0 14px;">Instant answers in Hindi & English</div>
+        <div style="background:#7c3aed;color:#fff;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;" onclick="alert('Chat window khul raha hai...')">🚀 Start Live Chat Now</div>
+      </div>
+      <div style="font-size:13px;color:var(--text);line-height:1.8;">
+        <div style="font-weight:700;margin-bottom:8px;">Chat Support Available For:</div>
+        ✈️ Flight & Hotel Bookings<br>
+        🍽️ Restaurant & Table Issues<br>
+        💳 Payment Problems<br>
+        📍 Location & Navigation Help<br>
+        🎤 Voice Assistant Issues<br>
+        📋 Trip Planning Queries
+      </div>
+    </div>
+  `);
+}
+
+function openGuaranteePopup(){
+  openGenPopup('🛡️ Service Guarantee','linear-gradient(135deg,#059669,#0891b2)',`
+    <div style="padding:10px 0;">
+      ${['Best Price Guarantee — price kahin kam mile to hum difference wapas karein 💰','24x7 Customer Support — kabhi bhi, kahin se bhi sampark karein 🕐','Instant Confirmation — booking ke saath turant confirmation email 📧','Free Cancellation — 24 ghante pehle cancel karein 100% refund 🔄','Secure Payments — RBI-compliant encrypted payment gateway 🔒','Verified Hotels Only — sab hotels personally verified hain ✅','No Hidden Charges — jo price dikhe wahi pay karein 💯'].map(g=>`<div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:#f0fdf4;border-radius:12px;margin-bottom:8px;font-size:13px;color:#166534;">${g}</div>`).join('')}
+    </div>
+  `);
+}
+
+function openMoreServicePopup(){
+  openGenPopup('🔧 More Service Info','linear-gradient(135deg,#1a56db,#0891b2)',`
+    <div style="padding:10px 0;display:grid;gap:10px;">
+      ${[['✈️ Flight Booking','Best fares across all airlines. Compare & book instantly.'],['🚆 Train Booking','IRCTC integration for all Indian trains.'],['🚗 Cab Service','Ola & Uber integrated — airport to hotel transfers.'],['🛡️ Travel Insurance','Starting ₹99 per trip — covers medical, baggage, cancellation.'],['🏕️ Trek Packages','Himalayan treks with certified guides from ₹2,999.'],['🎫 Activity Booking','Adventure sports, cultural shows, food tours, spa.'],['📱 Offline Maps','Download city maps before travel — works without internet.']].map(s=>`<div style="background:#f0f9ff;border-radius:12px;padding:14px;"><div style="font-weight:700;margin-bottom:4px;">${s[0]}</div><div style="font-size:12px;color:var(--muted);">${s[1]}</div></div>`).join('')}
+    </div>
+  `);
+}
+
+/* ── ABOUT POPUPS ── */
+function openAboutPopup(){
+  openGenPopup('🏢 About TripAI','linear-gradient(135deg,#0f2460,#1a56db)',`
+    <div style="padding:10px 0;">
+      <div style="text-align:center;margin-bottom:16px;">
+        <div style="font-size:3rem;">✈️</div>
+        <div style="font-family:'Baloo 2';font-size:1.8rem;font-weight:800;color:var(--primary);">TripAI</div>
+        <div style="font-size:13px;color:var(--muted);">India's Smartest Travel Platform</div>
+      </div>
+      <div style="background:#f0f4ff;border-radius:14px;padding:16px;margin-bottom:12px;font-size:13px;line-height:1.8;color:var(--text);">
+        TripAI 2023 mein launch hua tha ek simple mission ke saath — har Indian traveller ke liye trip planning ko easy, affordable aur enjoyable banana. Hum 10,000+ hotels, 5,000+ restaurants, aur AI-powered voice assistant offer karte hain jo Hindi aur English dono mein baat kar sakta hai.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        ${[['🏨','10,000+','Verified Hotels'],['🍽️','5,000+','Restaurants'],['👥','2M+','Happy Travellers'],['🌟','4.8/5','Average Rating']].map(s=>`<div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.8rem;">${s[0]}</div><div style="font-weight:800;font-size:1.2rem;color:var(--primary);">${s[1]}</div><div style="font-size:11px;color:var(--muted);">${s[2]}</div></div>`).join('')}
+      </div>
+    </div>
+  `);
+}
+
+function openNewsPopup(){
+  openGenPopup('📰 News & Media','linear-gradient(135deg,#f97316,#fbbf24)',`
+    <div style="padding:10px 0;">
+      ${[{date:'March 2025',title:'TripAI wins Best Travel App Award 2025',tag:'Award'},
+         {date:'Feb 2025',title:'TripAI launches AI Voice Assistant in 10 Indian languages',tag:'Product'},
+         {date:'Jan 2025',title:'1 Million bookings milestone crossed in January',tag:'Milestone'},
+         {date:'Dec 2024',title:'TripAI raises ₹200 Crore Series B funding',tag:'Funding'},
+         {date:'Nov 2024',title:'Partnership with IndiGo for exclusive flight deals',tag:'Partnership'}
+      ].map(n=>`<div style="border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="background:#fff7ed;color:#c2410c;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;">${n.tag}</span>
+          <span style="font-size:11px;color:var(--muted);">${n.date}</span>
+        </div>
+        <div style="font-weight:700;font-size:13px;">${n.title}</div>
+      </div>`).join('')}
+    </div>
+  `);
+}
+
+function openCareersPopup(){
+  openGenPopup('💼 Careers at TripAI','linear-gradient(135deg,#059669,#0891b2)',`
+    <div style="padding:10px 0;">
+      <div style="background:#f0fdf4;border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;">
+        <div style="font-size:1.5rem;font-weight:800;color:#166534;">Join Our Team! 🚀</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px;">Build the future of travel in India</div>
+      </div>
+      ${[['🧑‍💻 Senior Full Stack Developer','Bangalore • 5-8 Yrs • ₹25-40 LPA'],
+         ['📊 Product Manager — AI',  'Remote • 4-7 Yrs • ₹30-50 LPA'],
+         ['🎨 UI/UX Designer','Delhi • 2-5 Yrs • ₹15-25 LPA'],
+         ['📞 Customer Success Lead','Mumbai • 3-6 Yrs • ₹12-18 LPA'],
+         ['📢 Growth Marketing Manager','Any City • 4+ Yrs • ₹18-28 LPA'],
+      ].map(j=>`<div style="border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:700;font-size:13px;">${j[0]}</div><div style="font-size:11px;color:var(--muted);">${j[1]}</div></div>
+        <button style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;" onclick="alert('Application form khul raha hai...')">Apply</button>
+      </div>`).join('')}
+    </div>
+  `);
+}
+
+function openTermsPopup(){
+  openGenPopup('📋 Terms & Conditions','linear-gradient(135deg,#334155,#475569)',`
+    <div style="padding:10px 0;font-size:13px;line-height:1.9;color:var(--text);">
+      <div style="font-weight:800;margin-bottom:8px;">1. Booking Policy</div>
+      Sab bookings TripAI.in ke zariye confirm hoti hain. Booking ke baad turant email confirmation milega.
+      <div style="font-weight:800;margin:12px 0 8px;">2. Cancellation Policy</div>
+      Check-in se 24 ghante pehle cancel karein — 100% refund milega. 24 ghante ke andar cancel karne pe 50% deduction hoga.
+      <div style="font-weight:800;margin:12px 0 8px;">3. Payment Terms</div>
+      Sab payments secure SSL-encrypted gateway se process hoti hain. EMI 3, 6, 12 months ke liye available hai.
+      <div style="font-weight:800;margin:12px 0 8px;">4. Liability</div>
+      TripAI ek marketplace hai. Hotel, flight, aur restaurant services unke respective providers ki zimmedari hain.
+      <div style="font-weight:800;margin:12px 0 8px;">5. Privacy</div>
+      Aapki personal information hum kabhi third party ko nahi bechte. Sirf service improvement ke liye use hoti hai.
+    </div>
+  `);
+}
+
+function openPrivacyPopup(){
+  openGenPopup('🔒 Privacy Statement','linear-gradient(135deg,#1e293b,#334155)',`
+    <div style="padding:10px 0;font-size:13px;line-height:1.9;color:var(--text);">
+      <div style="background:#f0f9ff;border-radius:12px;padding:14px;margin-bottom:12px;">
+        <div style="font-weight:800;color:#0369a1;">Aapka Data Sirf Aapka Hai 🔐</div>
+        <div style="color:var(--muted);">GDPR & Indian IT Act 2000 ke tahet aapke sab data ki suraksha</div>
+      </div>
+      <b>Hum kya collect karte hain:</b><br>Mobile number, trip preferences, booking history, reviews<br><br>
+      <b>Hum kya NAHI karte:</b><br>✅ Aapka data kabhi sell nahi karte<br>✅ Unnecessary tracking nahi karte<br>✅ Spam calls/messages nahi bhejte<br><br>
+      <b>Aapke rights:</b><br>Aap kabhi bhi apna data delete ya export kar sakte hain. Email karein: privacy@tripai.in
+    </div>
+  `);
+}
+
+function openAccessPopup(){
+  openGenPopup('♿ Accessibility','linear-gradient(135deg,#0891b2,#06b6d4)',`
+    <div style="padding:10px 0;">
+      <div style="font-size:13px;line-height:1.9;color:var(--text);">
+        <div style="background:#f0f9ff;border-radius:12px;padding:14px;margin-bottom:12px;">TripAI har traveller ke liye accessible hai — disabilities ya special needs waale logon ke liye bhi.</div>
+        ${['🦽 Wheelchair accessible hotels filter karein','👁️ Screen reader compatible interface','🔡 Font size badhane ka option','🎤 Voice navigation for visually impaired','🧏 Sign language support for video calls','🔆 High contrast mode available'].map(a=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">${a}</div>`).join('')}
+      </div>
+    </div>
+  `);
+}
+
+function openGroupPopup(){
+  openGenPopup('🌐 About TripAI Group','linear-gradient(135deg,#0f2460,#8b5cf6)',`
+    <div style="padding:10px 0;font-size:13px;line-height:1.9;">
+      <div style="font-weight:800;font-size:15px;margin-bottom:10px;">TripAI Group — Our Brands</div>
+      ${[['✈️ TripAI Travel','Main platform — Hotels, Flights, Restaurants'],
+         ['🏕️ TripAI Adventures','Treks, camping, adventure sports'],
+         ['💑 TripAI Honeymoon','Curated honeymoon packages'],
+         ['🏢 TripAI Business','Corporate travel management'],
+         ['🌍 TripAI International','Visa, international tours'],
+         ['📱 TripAI Lite','Offline-first budget travel app'],
+      ].map(g=>`<div style="border:1.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;"><b>${g[0]}</b><br><span style="color:var(--muted);font-size:12px;">${g[1]}</span></div>`).join('')}
+    </div>
+  `);
+}
+
+/* ── OTHER SERVICES POPUPS ── */
+function openInvestorPopup(){
+  openGenPopup('📈 Investor Relations','linear-gradient(135deg,#1d4ed8,#7c3aed)',`
+    <div style="padding:10px 0;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        ${[['₹200 Cr','Series B Raised'],['42%','YoY Growth'],['₹850 Cr','Annual GMV'],['2.1M','Active Users']].map(s=>`<div style="background:#f0f4ff;border-radius:12px;padding:14px;text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:var(--primary);">${s[0]}</div><div style="font-size:12px;color:var(--muted);">${s[1]}</div></div>`).join('')}
+      </div>
+      <div style="font-size:13px;color:var(--text);line-height:1.8;">
+        <b>Investors aur analysts ke liye:</b><br>
+        Email: investors@tripai.in<br>
+        Quarterly reports: tripai.in/investor-relations<br><br>
+        <b>Upcoming Events:</b><br>
+        📅 Q4 FY25 Earnings Call — March 28, 2025<br>
+        📅 Annual Investor Day — May 15, 2025
+      </div>
+    </div>
+  `);
+}
+
+function openRewardsPopup(){
+  openGenPopup('🌟 TripAI Rewards','linear-gradient(135deg,#f59e0b,#f97316)',`
+    <div style="padding:10px 0;">
+      <div style="background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;">
+        <div style="font-size:2rem;">🌟</div>
+        <div style="font-weight:800;font-size:18px;color:#92400e;">Aapke Points: 1,250</div>
+        <div style="font-size:12px;color:#b45309;">= ₹250 TripCash</div>
+      </div>
+      ${[['🥉 Bronze (0-999 pts)','1% cashback on bookings','Currently Active'],
+         ['🥈 Silver (1000-4999 pts)','2% cashback + lounge access','You are here!'],
+         ['🥇 Gold (5000+ pts)','5% cashback + priority support','Next level'],
+         ['💎 Platinum (15000+ pts)','10% cashback + concierge service','Top tier'],
+      ].map((t,i)=>`<div style="border:${i===1?'2px solid #f59e0b':'1.5px solid var(--border)'};background:${i===1?'#fffbeb':'#fff'};border-radius:12px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;"><div><b style="font-size:13px;">${t[0]}</b><br><span style="font-size:12px;color:var(--muted);">${t[1]}</span></div><span style="font-size:11px;font-weight:700;color:#f59e0b;">${t[2]}</span></div>`).join('')}
+    </div>
+  `);
+}
+
+function openAffiliatePopup(){
+  openGenPopup('🤝 Affiliate Program','linear-gradient(135deg,#059669,#0891b2)',`
+    <div style="padding:10px 0;">
+      <div style="background:#f0fdf4;border-radius:14px;padding:16px;margin-bottom:14px;text-align:center;">
+        <div style="font-size:1.5rem;font-weight:800;color:#166534;">Earn up to ₹50,000/month! 💰</div>
+        <div style="font-size:12px;color:var(--muted);">Sirf links share karein — commission milega</div>
+      </div>
+      ${[['🏨 Hotel Booking','Up to 8% commission per booking'],['✈️ Flight Booking','₹200 per ticket booked'],['🍽️ Restaurant','₹50 per table booking'],['📦 Tour Packages','Up to 12% commission'],].map(a=>`<div style="border:1.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;"><b>${a[0]}</b><span style="color:var(--success);font-weight:700;">${a[1]}</span></div>`).join('')}
+      <button style="background:linear-gradient(135deg,#059669,#34d399);color:#fff;border:none;border-radius:12px;width:100%;padding:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;" onclick="alert('Affiliate registration khul raha hai...')">🚀 Join Affiliate Program</button>
+    </div>
+  `);
+}
+
+function openListPropertyPopup(){
+  openGenPopup('🏨 List Your Property','linear-gradient(135deg,#1a56db,#8b5cf6)',`
+    <div style="padding:10px 0;">
+      <div style="background:#f0f4ff;border-radius:14px;padding:16px;margin-bottom:14px;">
+        <b style="font-size:14px;">Apni property TripAI pe list karein</b><br>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">2M+ travellers ke saamne aapki property</div>
+      </div>
+      <div class="form-grid" style="margin-bottom:14px;">
+        <div class="fg"><label>Property Name</label><input placeholder="e.g. Hotel Sunshine"></div>
+        <div class="fg"><label>City</label><input placeholder="e.g. Jaipur"></div>
+        <div class="fg"><label>Contact Number</label><input placeholder="+91 XXXXX XXXXX"></div>
+        <div class="fg"><label>Property Type</label>
+          <select><option>Hotel</option><option>Resort</option><option>Hostel</option><option>Homestay</option><option>Villa</option></select>
+        </div>
+      </div>
+      <button style="background:linear-gradient(135deg,#1a56db,#8b5cf6);color:#fff;border:none;border-radius:12px;width:100%;padding:14px;font-size:14px;font-weight:700;cursor:pointer;" onclick="alert('Application submit ho gaya! Humari team 24 ghante mein contact karegi.')">📤 Submit Application</button>
+    </div>
+  `);
+}
+
+function openAllHotelsPopup(){
+  openGenPopup('🏨 All Hotels','linear-gradient(135deg,#0891b2,#06b6d4)',`
+    <div style="padding:10px 0;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${['Goa','Delhi','Mumbai','Jaipur','Manali','Kerala','Agra','Lucknow','Shimla','Varanasi','Rishikesh','Darjeeling','Ooty','Mysore','Udaipur','Jodhpur','Amritsar','Kolkata','Chennai','Hyderabad'].map(c=>`<div style="background:#f8faff;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='#f8faff'" onclick="closeGenPopup();document.getElementById('destination').value='${c}';document.getElementById('mainApp').classList.remove('hidden');document.getElementById('homePage').style.display='none';">🏙️ ${c}</div>`).join('')}
+      </div>
+    </div>
+  `);
+}
+
+function openSupplierPopup(){
+  openGenPopup('🤝 Become a Supplier','linear-gradient(135deg,#059669,#34d399)',`
+    <div style="padding:10px 0;font-size:13px;line-height:1.8;">
+      <div style="background:#f0fdf4;border-radius:14px;padding:16px;margin-bottom:14px;">
+        <b>TripAI Supplier Network mein join karein!</b><br>
+        <div style="color:var(--muted);">India ke largest travel platform pe apna business grow karein</div>
+      </div>
+      ${[['🚗 Cab & Transport','City transfers, outstation, airport pick-drop'],
+         ['🍽️ Restaurant Partner','Table bookings, menu management, reviews'],
+         ['🎭 Activity Provider','Tour guides, adventure sports, cultural shows'],
+         ['📸 Photography','Travel photography, wedding shoots, portraits'],
+         ['🧳 Tour Operator','Packages, group tours, customized trips'],
+      ].map(s=>`<div style="border:1.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;"><b>${s[0]}</b><br><span style="color:var(--muted);font-size:12px;">${s[1]}</span></div>`).join('')}
+      <button style="background:linear-gradient(135deg,#059669,#34d399);color:#fff;border:none;border-radius:12px;width:100%;padding:14px;font-weight:700;cursor:pointer;margin-top:8px;" onclick="alert('Registration form khul raha hai...')">🚀 Apply as Supplier</button>
+    </div>
+  `);
+}
+
+function openSecurityPopup(){
+  openGenPopup('🔐 Security Center','linear-gradient(135deg,#1e293b,#334155)',`
+    <div style="padding:10px 0;">
+      ${[['256-bit SSL Encryption','Sab transactions encrypted hain'],
+         ['PCI DSS Compliant','Payment Card Industry standards follow karte hain'],
+         ['Two-Factor Auth','Login pe OTP verification mandatory'],
+         ['Fraud Detection','Real-time suspicious activity monitoring'],
+         ['Secure Storage','Aapka data encrypted servers pe store hota hai'],
+         ['Privacy Controls','Aap apna data anytime delete kar sakte hain'],
+      ].map(s=>`<div style="display:flex;align-items:center;gap:12px;background:#f0fdf4;border-radius:12px;padding:14px;margin-bottom:8px;"><span style="font-size:1.5rem;">🛡️</span><div><b style="font-size:13px;">${s[0]}</b><br><span style="font-size:12px;color:var(--muted);">${s[1]}</span></div></div>`).join('')}
+      <div style="background:#fef2f2;border-radius:12px;padding:14px;margin-top:8px;font-size:13px;">
+        🚨 <b>Security Issue Report karein:</b> security@tripai.in
+      </div>
+    </div>
+  `);
+}
+
+function openSitemapPopup(){
+  openGenPopup('🗺️ Sitemap','linear-gradient(135deg,#1a56db,#0891b2)',`
+    <div style="padding:10px 0;columns:2;column-gap:20px;font-size:13px;line-height:2;">
+      <div><b style="color:var(--primary);">Main Pages</b><br>
+      Home • Trip Planner • Hotel Search • Restaurant Guide • Voice Assistant</div>
+      <div><b style="color:var(--primary);">User Account</b><br>
+      Login • My Bookings • Wishlist • Reviews • Rewards • Settings</div>
+      <div style="break-inside:avoid;margin-top:10px;"><b style="color:var(--primary);">Help</b><br>
+      FAQ • Contact • Refund Policy • Cancellation Policy • Emergency</div>
+      <div style="break-inside:avoid;margin-top:10px;"><b style="color:var(--primary);">Company</b><br>
+      About • Careers • Press • Investors • Partners • Blog</div>
+    </div>
+  `);
+}
+
+function openAwardPopup(){
+  openGenPopup('🏆 Award Details','linear-gradient(135deg,#f59e0b,#f97316)',`
+    <div style="padding:10px 0;text-align:center;">
+      <div style="font-size:4rem;margin-bottom:10px;">🏆</div>
+      <div style="font-family:'Baloo 2';font-size:1.5rem;font-weight:800;color:#92400e;">Contact Center of the Year</div>
+      <div style="font-size:14px;color:#b45309;margin:4px 0 16px;">Excellence in Customer Service — Travel Category 2025</div>
+      <div style="background:#fffbeb;border:2px solid #f59e0b;border-radius:14px;padding:16px;text-align:left;font-size:13px;line-height:1.8;">
+        TripAI ko yeh award diya gaya hai:<br><br>
+        ✅ Average response time: <b>47 seconds</b><br>
+        ✅ Customer satisfaction: <b>96.4%</b><br>
+        ✅ First call resolution: <b>89%</b><br>
+        ✅ Support languages: <b>12 Indian languages</b><br>
+        ✅ 24x7 human + AI hybrid support
+      </div>
+    </div>
+  `);
+}
+
+/* ── PAYMENT POPUPS ── */
+function openPaymentPopup(type){
+  const configs = {
+    upi:{title:'📱 UPI Payment',grad:'linear-gradient(135deg,#059669,#34d399)',qr:true,
+      info:'Google Pay, PhonePe, Paytm, BHIM sab UPI apps se pay karein',
+      steps:['UPI app kholen','QR code scan karein','Amount confirm karein','Pay karein — instant confirmation'],
+      upiId:'tripai@okicici'},
+    phonepe:{title:'📱 PhonePe','grad':'linear-gradient(135deg,#5f259f,#8b5cf6)',qr:true,
+      info:'PhonePe se instant, secure payment karein',
+      steps:['PhonePe app kholen','QR scan karein ya UPI ID enter karein','Amount verify karein','Pay karein'],
+      upiId:'tripai@ybl'},
+    paytm:{title:'💰 Paytm','grad':'linear-gradient(135deg,#00baf2,#0047bb)',qr:true,
+      info:'Paytm Wallet ya UPI se pay karein',
+      steps:['Paytm app kholen','Scan & Pay option chunen','QR scan karein','Payment confirm karein'],
+      upiId:'tripai@paytm'},
+    visa:{title:'💳 Visa Card','grad':'linear-gradient(135deg,#1a1f71,#1a56db)',qr:false,
+      info:'Visa credit aur debit cards accepted hain',
+      details:['3D Secure verification','Zero fraud liability','EMI in 3, 6, 12 months','International cards accepted']},
+    mastercard:{title:'💳 Mastercard','grad':'linear-gradient(135deg,#eb001b,#ff5f00)',qr:false,
+      info:'Mastercard credit aur debit cards accepted',
+      details:['SecureCode protection','Contactless payments','EMI available','All variants accepted']},
+    netbanking:{title:'🏦 Net Banking','grad':'linear-gradient(135deg,#166534,#059669)',qr:false,
+      info:'50+ banks supported',
+      details:['SBI','HDFC Bank','ICICI Bank','Axis Bank','Kotak Bank','PNB','BOB','Union Bank','Yes Bank','Canara Bank','IDFC First','IndusInd Bank']},
+    debit:{title:'🏧 Debit Card','grad':'linear-gradient(135deg,#1a56db,#0891b2)',qr:false,
+      info:'All Indian debit cards accepted',
+      details:['Rupay • Visa • Mastercard Debit','Zero transaction fee','Instant debit from account','Safe & encrypted']},
+    cash:{title:'💵 Cash Payment','grad':'linear-gradient(135deg,#166534,#34d399)',qr:false,
+      info:'Offline cash payment option',
+      details:['Hotel pe check-in pe pay karein','Cash on delivery for bookings','Receipt milegi on-site','Valid ID required']}
+  };
+  const c = configs[type] || configs.upi;
+  let bodyHTML = `<div style="padding:10px 0;"><div style="background:#f8faff;border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;font-weight:600;">${c.info}</div>`;
+  if(c.qr){
+    bodyHTML += `<div class="qr-box"><div class="qr-img">${generateQR()}</div>
+      <div style="font-weight:800;font-size:15px;color:var(--primary);margin-bottom:4px;">Scan to Pay</div>
+      <div style="font-size:12px;color:var(--muted);">UPI ID: <b>${c.upiId}</b></div>
+      <div style="font-size:11px;color:var(--success);margin-top:6px;">✅ Secure • Instant • No extra charges</div>
+    </div>
+    <div style="margin-top:14px;font-weight:700;">Steps:</div>
+    ${c.steps.map((s,i)=>`<div style="display:flex;gap:10px;align-items:center;padding:8px 0;font-size:13px;"><span style="background:var(--primary);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">${i+1}</span>${s}</div>`).join('')}`;
+  } else if(type==='netbanking'){
+    bodyHTML += `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      ${c.details.map(b=>`<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:10px;text-align:center;font-size:12px;font-weight:700;color:#166534;cursor:pointer;" onclick="alert('${b} net banking se redirect ho raha hai...')">${b}</div>`).join('')}
+    </div>`;
+  } else {
+    bodyHTML += c.details.map(d=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--success);font-weight:800;">✅</span>${d}</div>`).join('');
+  }
+  bodyHTML += '</div>';
+  openGenPopup(c.title, c.grad, bodyHTML);
+}
+
+function generateQR(){
+  // Generate a visual QR-like pattern using SVG
+  let squares = '';
+  const seed = Math.random();
+  for(let i=0;i<7;i++){
+    for(let j=0;j<7;j++){
+      const fill = (Math.sin(i*j+seed*10+i+j)>0)||((i<3||i>3)&&(j<3||j>3)) ? '#fff' : 'transparent';
+      squares += `<rect x="${j*20}" y="${i*20}" width="19" height="19" fill="${fill}" rx="2"/>`;
+    }
+  }
+  // Corner marks
+  const cm = `<rect x="1" y="1" width="55" height="55" fill="none" stroke="#fff" stroke-width="5" rx="5"/>
+  <rect x="84" y="1" width="55" height="55" fill="none" stroke="#fff" stroke-width="5" rx="5"/>
+  <rect x="1" y="84" width="55" height="55" fill="none" stroke="#fff" stroke-width="5" rx="5"/>`;
+  return `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+    <rect width="140" height="140" fill="transparent"/>
+    ${squares}${cm}
+    <rect x="15" y="15" width="27" height="27" fill="#fff" rx="3"/>
+    <rect x="98" y="15" width="27" height="27" fill="#fff" rx="3"/>
+    <rect x="15" y="98" width="27" height="27" fill="#fff" rx="3"/>
+    <rect x="60" y="60" width="20" height="20" fill="#fff" rx="3"/>
+  </svg>`;
+}
+
+/* ── PARTNER POPUPS ── */
+function openPartnerPopup(partner){
+  const partners = {
+    indigo:{name:'✈️ IndiGo Airlines',color:'linear-gradient(135deg,#003db2,#0052cc)',info:'IndiGo ke saath partnership mein aapko milta hai:',perks:['Lowest fares on 100+ routes','Priority check-in for TripAI users','15 kg extra baggage allowance','Free seat upgrade (select bookings)','Meal discounts on board']},
+    airindia:{name:'✈️ Air India',color:'linear-gradient(135deg,#c40000,#ff4444)',info:'Air India exclusive TripAI deals:',perks:['Business class upgrades available','Flying Returns miles earn karein','International connections access','Maharaja Club lounge access','Priority boarding']},
+    irctc:{name:'🚂 IRCTC Train Booking',color:'linear-gradient(135deg,#1a4580,#2563eb)',info:'IRCTC integration se train tickets:',perks:['Tatkal & general quota access','All train classes available','PNR tracking integrated','E-ticket instant delivery','Platform ticket bhi available']},
+    oyo:{name:'🏨 OYO Hotels',color:'linear-gradient(135deg,#e9223a,#ff6b7a)',info:'OYO ke 12,000+ hotels TripAI pe:',perks:['Budget hotels from ₹499/night','Verified hygiene standards','Instant confirmation','OYO Money cashback','Last minute bookings available']},
+    ola:{name:'🚗 Ola Cabs',color:'linear-gradient(135deg,#f2542d,#ffa726)',info:'Ola cab integration:',perks:['Airport to hotel transfers','Outstation cabs available','Ola Money accepted','Shared rides option','Real-time tracking']},
+    uber:{name:'🚗 Uber',color:'linear-gradient(135deg,#000000,#333333)',info:'Uber ride booking via TripAI:',perks:['Instant pickup at any hotel','Uber Cash integration','Auto, Mini, Prime, SUV','Scheduled rides available','No surge guaranteed*']},
+    insurance:{name:'🛡️ Travel Insurance',color:'linear-gradient(135deg,#166534,#059669)',info:'IRDA approved travel insurance:',perks:['Medical emergency cover upto ₹25L','Flight delay/cancellation cover','Baggage loss protection','Personal accident cover','Starting at just ₹99 per trip']}
+  };
+  const p = partners[partner];
+  if(!p) return;
+  openGenPopup(p.name, p.color, `
+    <div style="padding:10px 0;">
+      <div style="background:#f8faff;border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;font-weight:600;">${p.info}</div>
+      ${p.perks.map(perk=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--success);font-weight:800;font-size:16px;">✓</span>${perk}</div>`).join('')}
+      <button style="background:var(--primary);color:#fff;border:none;border-radius:12px;width:100%;padding:14px;font-weight:700;font-size:14px;cursor:pointer;margin-top:14px;" onclick="alert('Partner website pe redirect ho raha hai...')">🔗 Book with Partner</button>
+    </div>
+  `);
+}
+
+/* ═══ LOGIN / OTP ═══════════════════════════════════════ */
+function sendOTP(){
+  const mob = document.getElementById('mobile').value;
+  if(!mob||mob.length<10){alert('Valid 10-digit mobile number daalen!');return;}
+  document.getElementById('otpBox').style.display='block';
+  showChat(`OTP ${mob} pe bhej diya gaya! 📱\nTest OTP: 1234`);
+}
+function verifyOTP(){
+  const otp=document.getElementById('otp').value;
+  if(otp==='1234'){
+    document.getElementById('homePage').style.display='none';
+    const app=document.getElementById('mainApp');
+    app.classList.remove('hidden');
+    app.style.display='block';
+    buildAppFooter();
+    showChat('TripAI mein aapka swagat hai! 🎉\nKahan jaana chahte hain?');
+  } else {
+    alert('Galat OTP! 1234 use karein.');
+  }
+}
+
+/* ═══ APP FOOTER ═══════════════════════════════════════ */
+function buildAppFooter(){
+  let fd=document.getElementById('appFooter');
+  if(!fd){
+    fd=document.createElement('div');
+    fd.id='appFooter';
+    document.getElementById('mainApp').appendChild(fd);
+  }
+  fd.innerHTML=buildFooter();
+}
+
+/* ═══ LOCATION ═══════════════════════════════════════ */
+function detectMyLocation(){
+  const btn=document.getElementById('detectLocBtn');
+  btn.textContent='🔄 Detecting...';btn.disabled=true;
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      myLat=pos.coords.latitude;myLng=pos.coords.longitude;
+      const cities={goa:{lat:15.49,lng:73.82,name:'Goa'},delhi:{lat:28.61,lng:77.20,name:'Delhi'},mumbai:{lat:19.07,lng:72.87,name:'Mumbai'},jaipur:{lat:26.91,lng:75.78,name:'Jaipur'},manali:{lat:32.24,lng:77.18,name:'Manali'},varanasi:{lat:25.32,lng:82.97,name:'Varanasi'},lucknow:{lat:26.85,lng:80.94,name:'Lucknow'},agra:{lat:27.17,lng:78.01,name:'Agra'},shimla:{lat:31.10,lng:77.17,name:'Shimla'},kerala:{lat:9.93,lng:76.26,name:'Kerala'}};
+      let nearest='varanasi',minD=999;
+      Object.entries(cities).forEach(([k,v])=>{
+        const d=Math.sqrt((myLat-v.lat)**2+(myLng-v.lng)**2);
+        if(d<minD){minD=d;nearest=k;myCity=v.name;}
+      });
+      document.getElementById('locStatusText').textContent=`📍 Location detected: Near ${myCity} (${myLat.toFixed(2)}°N, ${myLng.toFixed(2)}°E)`;
+      btn.textContent='✅ Located!';
+      showNearby(nearest);
+    },
+    ()=>{
+      const d=DEST_DATA['varanasi'];myCity='Varanasi';
+      document.getElementById('locStatusText').textContent='📍 Default: Varanasi area (GPS not available)';
+      btn.textContent='📍 Default Location';btn.disabled=false;
+      showNearby('varanasi');
+    }
+  );
+}
+function fillMyCity(){document.getElementById('origin').value=myCity||'Your City';}
+
+function showNearby(cityKey){
+  const d=DEST_DATA[cityKey]||DEST_DATA['goa'];
+  const sec=document.getElementById('nearbySection');
+  sec.style.display='block';
+  let html=`<div style="font-family:'Baloo 2';font-weight:800;color:#166534;margin-bottom:10px;">📍 Nearby Options in ${myCity||'Your Area'}</div>
+  <div class="grid-2">`;
+  d.hotels.slice(0,2).forEach(h=>{
+    html+=`<div onclick="openHotelModal(currentNearbyCity,'${h.name}')" style="cursor:pointer;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);border:1.5px solid #86efac;transition:.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      <img src="${h.img}?w=400&h=120&fit=crop" style="width:100%;height:80px;object-fit:cover;">
+      <div style="padding:8px 10px;"><div style="font-weight:700;font-size:12px;">${h.name}</div>
+      <div style="font-size:11px;color:var(--muted);">${'⭐'.repeat(h.stars)} • ₹${h.price.toLocaleString()}/night</div></div>
+    </div>`;
+  });
+  html+='</div>';
+  html+=`<div style="margin-top:12px;font-family:'Baloo 2';font-weight:800;color:#166534;margin-bottom:8px;">🍽️ Nearby Restaurants</div>
+  <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;">`;
+  d.restaurants.forEach(r=>{
+    html+=`<div onclick="openRestaurantFromCity(currentNearbyCity,'${r.name}')" style="cursor:pointer;flex-shrink:0;background:#fff;border-radius:12px;padding:10px;width:160px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1.5px solid #86efac;">
+      <div style="font-weight:700;font-size:12px;">${r.name}</div>
+      <div style="font-size:11px;color:var(--muted);">${r.cuisine.substring(0,30)}</div>
+      <div style="font-size:11px;color:var(--success);font-weight:700;margin-top:4px;">⭐ ${r.rating}</div>
+    </div>`;
+  });
+  html+='</div>';
+  sec.innerHTML=html;
+  window.currentNearbyCity=cityKey;
+}
+function openRestaurantFromCity(city,name){
+  const d=DEST_DATA[city];
+  if(!d)return;
+  const r=d.restaurants.find(x=>x.name===name);
+  if(r)openRestModal(city,r);
+}
+
+/* ═══ PLAN TRIP ═══════════════════════════════════════ */
+function planTrip(){
+  const dest=document.getElementById('destination').value.trim().toLowerCase();
+  const days=parseInt(document.getElementById('days').value)||3;
+  const budget=parseInt(document.getElementById('budget').value)||15000;
+  if(!dest){alert('Destination daalen!');return;}
+  const key=Object.keys(DEST_DATA).find(k=>dest.includes(k)||k.includes(dest));
+  const d=key?DEST_DATA[key]:null;
+  if(!d){document.getElementById('output').innerHTML=`<div class="card"><div class="sec-title">❌ Destination Not Found</div><p>Supported: Goa, Delhi, Mumbai, Jaipur, Manali, Kerala, Agra, Lucknow, Shimla, Varanasi</p></div>`;return;}
+  currentCity=key;
+  const perDay=Math.floor(budget/days);
+  const hotel=d.hotels.find(h=>h.price<=perDay*0.6)||d.hotels[d.hotels.length-1];
+
+  let html=`<div class="card" style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-color:#bae6fd;">
+    <div class="sec-title">✅ Trip Plan: ${key.charAt(0).toUpperCase()+key.slice(1)} for ${days} Days</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+      <span class="tag">🌤️ ${d.weather}</span><span class="tag">📍 ${d.region}</span>
+      <span class="tag">💰 Budget: ₹${budget.toLocaleString()}</span>
+      <span class="tag">📅 ${days} Days / ${days-1} Nights</span>
+    </div>`;
+
+  // Day plan
+  for(let i=1;i<=days;i++){
+    const place=d.places[(i-1)%d.places.length];
+    const act=d.activities[(i-1)%d.activities.length];
+    const rest=d.restaurants[(i-1)%d.restaurants.length];
+    html+=`<div class="day-card"><div class="day-title">📅 Day ${i} — ${place}</div>
+      <div class="day-item">🌅 <span><b>Morning:</b> ${place} visit + ${d.activities[i%d.activities.length]}</span></div>
+      <div class="day-item">☀️ <span><b>Afternoon:</b> ${act}</span></div>
+      <div class="day-item">🍽️ <span><b>Lunch:</b> <a style="color:var(--primary);cursor:pointer;font-weight:700;" onclick="openRestaurantFromCity('${key}','${rest.name}')">${rest.name}</a> — ${rest.speciality}</span></div>
+      <div class="day-item">🌙 <span><b>Evening:</b> ${d.places[i%d.places.length]} + local shopping</span></div>
+    </div>`;
+  }
+  html+='</div>';
+
+  // Famous Places Section
+  html+=`<div class="card">
+    <div class="sec-title">📍 Famous Places to Visit in ${key.charAt(0).toUpperCase()+key.slice(1)}</div>
+    ${d.famousPlaces.map(fp=>`
+      <div class="famous-place">
+        <div class="fp-num">${fp.icon}</div>
+        <div class="fp-info">
+          <div class="fp-name">${fp.name}</div>
+          <div class="fp-type">${fp.type}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${fp.desc}</div>
+        </div>
+        <div class="fp-dist">📍 ${fp.dist}</div>
+      </div>`).join('')}
+  </div>`;
+
+  // Hotels
+  html+=`<div class="sec-title">🏨 Hotels in ${key.charAt(0).toUpperCase()+key.slice(1)}</div><div class="grid-2">`;
+  d.hotels.forEach(h=>{
+    const withinBudget=h.price*days<=budget*0.65;
+    html+=`<div class="place-card ${withinBudget?'selected':''}">
+      <img src="${h.img}?w=400&h=160&fit=crop" alt="${h.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400'">
+      <div class="cb">
+        <span class="badge ${h.badge}">${h.tag}</span>${withinBudget?`<span class="badge b-green" style="margin-left:4px;">✅ Budget Fit</span>`:''}
+        <div class="cn" style="margin-top:6px;">${h.name}</div>
+        <div class="stars">${'⭐'.repeat(h.stars)} (${(4.2+Math.random()*0.6).toFixed(1)})</div>
+        <div style="font-size:11px;color:var(--muted);">${h.amenities}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:6px;">
+          <div class="price-tag">₹${h.price.toLocaleString()}/night</div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-sm" style="background:#f0f4ff;color:var(--primary);border:1.5px solid var(--primary);" onclick="showLocPopup('${h.name}','${h.address}','${h.mapQ}','${h.lat}','${h.lng}')">📍 Map</button>
+            <button class="btn btn-sm btn-success" onclick="openHotelModal('${key}','${h.name}')">View & Book</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+
+  // Gyms
+  html+=`<div class="card">
+    <div class="sec-title">💪 Premium Gyms Near ${key.charAt(0).toUpperCase()+key.slice(1)}</div>
+    ${d.gyms.map(g=>`
+      <div class="gym-card">
+        <div class="gym-icon">🏋️</div>
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px;">
+            <div>
+              <div class="gym-name">${g.name}</div>
+              <div class="gym-meta">⭐ ${g.rating} • ⏰ ${g.timing}</div>
+              <div class="gym-meta">💪 ${g.facilities}</div>
+              <div class="gym-meta">📍 ${g.address}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div class="gym-badge">${g.badge}</div>
+              <div style="font-weight:800;color:#c2410c;font-size:14px;margin-top:6px;">${g.fee}</div>
+              <button class="btn btn-sm btn-orange" style="margin-top:6px;" onclick="alert('Gym ${g.name} membership inquiry bhej di gayi! Response milega 24 hrs mein.')">Enquire</button>
+            </div>
+          </div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+
+  // Restaurants
+  html+=`<div class="sec-title">🍽️ Top Restaurants</div><div class="grid-2">`;
+  d.restaurants.forEach(r=>{
+    html+=`<div class="place-card">
+      <img src="${r.img}?w=400&h=160&fit=crop" alt="${r.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?w=400'">
+      <div class="cb">
+        <div class="cn">${r.name}</div>
+        <div style="font-size:11px;color:var(--muted);">${r.cuisine}</div>
+        <div class="stars">⭐ ${r.rating} • 👥 ₹${r.priceFor2} for 2</div>
+        <div class="offer-strip">🎁 ${r.offer}</div>
+        <div style="font-size:12px;color:var(--muted);margin:4px 0;">🍴 ${r.speciality}</div>
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-success" onclick="openRestModal('${key}', '${r.name}')">🍽️ Menu & Book</button>
+          <button class="btn btn-sm" style="background:#f0f4ff;color:var(--primary);border:1.5px solid var(--primary);" onclick="showLocPopup('${r.name}','${r.address}','${r.mapQ}','${r.lat}','${r.lng}')">📍 Map</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+
+  document.getElementById('output').innerHTML=html;
+  showChat(`${key.charAt(0).toUpperCase()+key.slice(1)} ka trip plan ready hai! 🎉\n${days} din • ₹${budget.toLocaleString()} budget\nHotel aur restaurants dekho 👇`);
+}
+
+/* ═══ HOTEL MODAL ═══════════════════════════════════════ */
+function openHotelModal(cityKey,hotelName){
+  const d=DEST_DATA[cityKey];if(!d)return;
+  const h=d.hotels.find(x=>x.name===hotelName);if(!h)return;
+  currentHotel={...h,city:cityKey};
+  const imgs=[h.img,
+    'https://images.unsplash.com/photo-1578683010236-d716f9a3f461',
+    'https://images.unsplash.com/photo-1582719508461-905c673771fd',
+    'https://images.unsplash.com/photo-1631049307264-da0ec9d70304',
+    'https://images.unsplash.com/photo-1445019980597-93fa8acb246c'
+  ];
+  document.getElementById('hmMainImg').src=imgs[0]+'?w=780&h=280&fit=crop';
+  document.getElementById('hmName').textContent=h.name;
+  document.getElementById('hmStars').textContent='⭐'.repeat(h.stars)+' '+['','','Decent','Good','Very Good','Excellent'][h.stars];
+  document.getElementById('hmAddress').textContent='📍 '+h.address;
+  document.getElementById('hmPrice').textContent='₹'+h.price.toLocaleString();
+  const thumbs=document.getElementById('hmThumbs');
+  thumbs.innerHTML=imgs.map((img,i)=>`<img class="hm-thumb ${i===0?'active':''}" src="${img}?w=140&h=104&fit=crop" onclick="changeHMImg(this,'${img}?w=780&h=280&fit=crop')">`).join('');
+  document.getElementById('hotelModal').classList.remove('hidden');
+  hmTab('overview',document.querySelector('.hm-tab'));
+}
+function changeHMImg(el,src){
+  document.getElementById('hmMainImg').src=src;
+  document.querySelectorAll('.hm-thumb').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+function closeHotelModal(){document.getElementById('hotelModal').classList.add('hidden');}
+function hmTab(tab,el){
+  document.querySelectorAll('.hm-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const h=currentHotel;
+  const cont=document.getElementById('hmTabContent');
+  if(tab==='overview'){
+    cont.innerHTML=`<div style="font-size:14px;color:var(--text);line-height:1.8;margin-bottom:12px;">${h.name} ek ${['','','budget-friendly','well-maintained','premium','world-class'][h.stars]} property hai jo travellers ko ${h.amenities} jaise suvidhaen deta hai. ${h.tag} category mein ata hai aur iske paas aapki saari zaruraten hain.</div>
+    <div style="font-weight:700;margin-bottom:8px;">Top Highlights:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">${h.amenities.split('•').map(a=>`<span class="tag">✅ ${a.trim()}</span>`).join('')}</div>`;
+  } else if(tab==='rooms'){
+    const rooms=[
+      {name:'Standard Room',feat:'2 Guests • City View',price:h.price,img:'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=220'},
+      {name:'Deluxe Room',feat:'2 Guests • Better View',price:Math.round(h.price*1.3),img:'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=220'},
+      {name:'Suite',feat:'4 Guests • Premium',price:Math.round(h.price*2.1),img:'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=220'},
+    ];
+    cont.innerHTML=`<div class="room-grid">${rooms.map((r,i)=>`<div class="room-card" id="rc_${i}" onclick="selectRoom(this,'${r.name}')">
+      <img src="${r.img}&h=120&fit=crop">
+      <div class="rc-body"><div class="rc-name">${r.name}</div><div class="rc-feat">${r.feat}</div><div class="rc-price">₹${r.price.toLocaleString()}/night</div></div>
+    </div>`).join('')}</div>`;
+  } else if(tab==='amenities'){
+    const ams=[['🏊','Pool'],['🧖','Spa'],['💪','Gym'],['🍽️','Restaurant'],['🚗','Parking'],['📶','WiFi'],['❄️','AC'],['☕','Room Service'],['🛁','Bathtub'],['🏋️','Fitness'],['👔','Laundry'],['🛎️','Concierge']];
+    cont.innerHTML=`<div class="facility-grid">${ams.map(a=>`<div class="facility-item"><span class="fi">${a[0]}</span>${a[1]}</div>`).join('')}</div>`;
+  } else if(tab==='location'){
+    cont.innerHTML=`<div style="font-size:13px;color:var(--muted);margin-bottom:10px;">📍 ${h.address}</div>
+    <div style="background:#f0f4ff;border-radius:12px;padding:14px;cursor:pointer;" onclick="showLocPopup('${h.name}','${h.address}','${h.mapQ}','${h.lat}','${h.lng}')">
+      <div style="font-weight:700;margin-bottom:6px;">🗺️ View on Map</div>
+      <div style="font-size:12px;color:var(--muted);">Tap to open map with directions</div>
+    </div>`;
+  } else if(tab==='policies'){
+    cont.innerHTML=['✅ Check-in: 2:00 PM | Check-out: 12:00 PM','🔄 Free cancellation up to 24 hours before check-in','💳 Credit/Debit card, UPI, Net Banking accepted','🐾 Pets not allowed','🚬 Smoke-free property','👶 Children under 12 stay free','🛗 Accessible rooms available on request'].map(p=>`<div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;">${p}</div>`).join('');
+  }
+}
+function selectRoom(el,name){
+  document.querySelectorAll('.room-card').forEach(r=>r.classList.remove('selected-room'));
+  el.classList.add('selected-room');
+  showChat(`${name} select ki! Aage book karein 🛏️`);
+}
+function confirmHotelFromModal(){
+  if(!currentHotel)return;
+  closeHotelModal();
+  openPaymentPopup('upi');
+}
+
+/* ═══ RESTAURANT MODAL ═══════════════════════════════════ */
+function openRestModal(cityKey, r){
+  if(typeof r==='string'){
+    const d=DEST_DATA[cityKey];
+    r=d&&d.restaurants.find(x=>x.name===r);
+    if(!r)return;
+  }
+  currentRestaurant={...r,city:cityKey};
+  cartItems={};
+  document.getElementById('restModalTitle').textContent='🍽️ '+r.name;
+  document.getElementById('restModal').classList.remove('hidden');
+  document.getElementById('restOffer').innerHTML=r.offer?`<div class="offer-strip">🎁 ${r.offer}</div>`:'';
+  const menu=MENUS[cityKey]||MENUS.default;
+  buildMenuSection('vegSection',menu.veg,true);
+  buildMenuSection('nonvegSection',menu.nonveg,false);
+  buildReviewSection();
+  buildTableSection();
+  updateTotal();
+  switchTab('veg');
+}
+function closeRestModal(){document.getElementById('restModal').classList.add('hidden');}
+
+function buildMenuSection(secId,items,isVeg){
+  const sec=document.getElementById(secId);
+  sec.innerHTML=items.map((item,idx)=>`<div class="menu-item" id="mi_${secId}_${idx}">
+    <img class="mi-img" src="${item.img}" alt="${item.n}" onerror="this.style.background='#f0f4ff';this.src=''">
+    <div class="mi-info">
+      <div class="mi-name">${isVeg?`<span class="veg-dot"></span>`:`<span class="nonveg-dot"></span>`} ${item.n}</div>
+      <div class="mi-desc">${item.d} • ${item.cal}</div>
+      <div class="mi-price">₹${item.p}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty('${secId}_${idx}','${item.n}',${item.p},-1)">−</button>
+        <span class="qty-val" id="qv_${secId}_${idx}">0</span>
+        <button class="qty-btn" onclick="changeQty('${secId}_${idx}','${item.n}',${item.p},1)">+</button>
+      </div>
+      <button style="background:#fff7ed;color:#c2410c;border:1px solid #fdba74;border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer;font-weight:700;" onclick="showRecipe('${item.recipe||'default'}')">📖 Recipe</button>
+    </div>
+  </div>`).join('');
+}
+
+function changeQty(id,name,price,delta){
+  if(!cartItems[id])cartItems[id]={name,price,qty:0};
+  cartItems[id].qty=Math.max(0,cartItems[id].qty+delta);
+  const el=document.getElementById('qv_'+id);
+  if(el)el.textContent=cartItems[id].qty;
+  updateTotal();
+}
+
+function updateTotal(){
+  let total=0;
+  Object.values(cartItems).forEach(i=>total+=i.price*i.qty);
+  const r=currentRestaurant;
+  let disc=0;
+  if(r&&r.offerVal&&total>0)disc=Math.round(total*r.offerVal/100);
+  const final=total-disc;
+  document.getElementById('modalTotal').textContent='₹'+final.toLocaleString();
+  const ol=document.getElementById('offerLine');
+  if(disc>0){ol.style.display='block';ol.textContent=`🎉 Offer applied! You saved ₹${disc}`;}
+  else ol.style.display='none';
+}
+
+function switchTab(tab){
+  const tabs=['veg','nonveg','review','table'];
+  tabs.forEach(t=>{
+    document.getElementById(t+'Section').classList.add('hidden');
+    const btn=document.getElementById(t+'Tab');
+    if(btn){btn.classList.remove('veg-active','nonveg-active');btn.style.background='#f8faff';btn.style.color='var(--muted)';}
+  });
+  document.getElementById(tab+'Section').classList.remove('hidden');
+  const activeBtn=document.getElementById(tab+'Tab');
+  if(activeBtn){
+    if(tab==='veg'){activeBtn.classList.add('veg-active');}
+    else if(tab==='nonveg'){activeBtn.classList.add('nonveg-active');}
+    else{activeBtn.style.background='var(--primary)';activeBtn.style.color='#fff';}
+  }
+}
+
+function buildReviewSection(){
+  const reviews=[
+    {name:'Priya S.',stars:5,text:'Bahut aacha khana tha! Service bhi kaafi fast thi. Definitely recommend!',date:'2 days ago'},
+    {name:'Rahul M.',stars:4,text:'Ambiance acha tha, price reasonable. Biryani awesome hai yahan ki!',date:'1 week ago'},
+    {name:'Sunita K.',stars:5,text:'Family ke saath gaye the, sab bahut khush the. Wapas zaroor ayenge!',date:'2 weeks ago'},
+  ];
+  document.getElementById('reviewSection').innerHTML=`
+    <div class="review-section">
+      ${reviews.map(r=>`<div class="review-item">
+        <div class="review-top"><span class="reviewer">👤 ${r.name}</span><span style="font-size:11px;color:var(--muted);">${r.date}</span></div>
+        <div class="stars">${'⭐'.repeat(r.stars)}</div>
+        <div class="review-text">${r.text}</div>
+      </div>`).join('')}
+      <div class="add-review">
+        <div style="font-weight:700;font-size:13px;margin-bottom:6px;">Apna Review Dein:</div>
+        <div class="star-select" id="starSel">${[1,2,3,4,5].map(s=>`<span onclick="setStars(${s})" id="star_${s}" class="${s<=reviewStars?'active':''}">⭐</span>`).join('')}</div>
+        <textarea id="reviewText" rows="2" placeholder="Aapka experience batayein..."></textarea>
+        <button class="btn btn-success btn-sm" style="margin-top:6px;" onclick="submitReview()">📤 Submit Review</button>
+      </div>
+    </div>`;
+}
+function setStars(n){
+  reviewStars=n;
+  for(let i=1;i<=5;i++){const el=document.getElementById('star_'+i);if(el)el.className=i<=n?'active':'';}
+}
+function submitReview(){
+  const text=document.getElementById('reviewText').value;
+  if(!text.trim()){alert('Review likhein pehle!');return;}
+  alert(`Review submit ho gaya! ${reviewStars}⭐ - "${text.substring(0,30)}..."\nDhanyavaad!`);
+  document.getElementById('reviewText').value='';
+}
+
+function buildTableSection(){
+  const occupied=[3,7,12,15];
+  document.getElementById('tableSection').innerHTML=`
+    <div style="font-weight:700;font-size:13px;margin-bottom:6px;">🪑 Select Table:</div>
+    <div class="table-grid">
+      ${Array.from({length:20},(_,i)=>{
+        const n=i+1;
+        const isOcc=occupied.includes(n);
+        const isSel=selectedTable===n;
+        return `<div class="table-btn ${isOcc?'occupied':isSel?'selected-table':''}" onclick="${isOcc?'':'selectTable('+n+')'}">
+          ${isOcc?'🔴':'🪑'}<br>T-${n}<br><span style="font-size:9px;">${isOcc?'Occupied':'Available'}</span>
+        </div>`;
+      }).join('')}
+    </div>
+    <div id="tableMsg" style="font-size:12px;color:var(--success);margin-top:6px;"></div>`;
+}
+function selectTable(n){
+  selectedTable=n;
+  buildTableSection();
+  document.getElementById('tableMsg').textContent=`✅ Table ${n} selected!`;
+}
+
+function confirmTableBooking(){
+  const date=document.getElementById('bookDate').value;
+  const time=document.getElementById('bookTime').value;
+  const name=document.getElementById('bookName').value;
+  if(!date||!time||!name){alert('Sab fields bharen!');return;}
+  if(!selectedTable){alert('Pehle table select karein!');return;}
+  closeRestModal();
+  let total=0;Object.values(cartItems).forEach(i=>total+=i.price*i.qty);
+  if(total>0){openPaymentPopup('upi');}
+  else{showChat(`🎉 Table booking confirmed!\n📍 ${currentRestaurant.name}\n🪑 Table ${selectedTable}\n👤 ${name}\n📅 ${date} • ${time}`);}
+}
+
+/* ═══ RECIPE ═══════════════════════════════════════════ */
+function showRecipe(key){
+  const r=RECIPES[key]||RECIPES.default;
+  document.getElementById('recipeTitle').textContent=`📖 ${r.name}`;
+  document.getElementById('recipeBody').innerHTML=`
+    <img src="${r.img}?w=440&h=160&fit=crop" style="width:100%;height:140px;object-fit:cover;border-radius:10px;margin-bottom:12px;">
+    <div style="display:flex;gap:12px;margin-bottom:14px;">
+      <span class="tag">⏱️ ${r.time}</span><span class="tag">🍽️ Serves ${r.serves}</span>
+    </div>
+    ${r.steps.map((s,i)=>`<div class="recipe-step"><span class="step-num">${i+1}</span>${s}</div>`).join('')}`;
+  document.getElementById('recipePopup').classList.remove('hidden');
+}
+function closeRecipe(){document.getElementById('recipePopup').classList.add('hidden');}
+
+/* ═══ LOCATION MAP ═══════════════════════════════════════ */
+function showLocPopup(name,address,mapQ,lat,lng){
+  document.getElementById('locTitle').textContent='📍 '+name;
+  document.getElementById('locBody').innerHTML=`<div style="font-size:13px;color:var(--muted);">📍 ${address}</div><div style="margin-top:6px;"><a href="https://maps.google.com/maps?q=${mapQ}" target="_blank" style="color:var(--primary);font-size:12px;font-weight:700;">🗺️ Open in Google Maps</a></div>`;
+  document.getElementById('mapFrame').src=`https://maps.google.com/maps?q=${encodeURIComponent(mapQ)}&output=embed`;
+  document.getElementById('locPopup').classList.remove('hidden');
+}
+function closeLoc(){document.getElementById('locPopup').classList.add('hidden');}
+
+/* ═══ VOICE ═══════════════════════════════════════════ */
+let isListening=false;
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let recognition=SR?new SR():null;
+if(recognition){recognition.lang='hi-IN';recognition.continuous=false;recognition.interimResults=false;
+  recognition.onresult=e=>{
+    const t=e.results[0][0].transcript.toLowerCase();
+    stopListening();handleVoice(t);
+  };
+  recognition.onerror=()=>stopListening();
+  recognition.onend=()=>stopListening();
+}
+function toggleVoice(){isListening?stopListening():startListening();}
+function startListening(){
+  if(!recognition){showChat('Voice support nahi hai is browser mein.');return;}
+  isListening=true;
+  document.getElementById('micBtn').classList.add('listening');
+  document.getElementById('voiceLabel').textContent='🔴 Bol raha hoon...';
+  document.getElementById('langBadge').style.display='block';
+  recognition.start();
+}
+function stopListening(){
+  isListening=false;
+  document.getElementById('micBtn').classList.remove('listening');
+  document.getElementById('voiceLabel').textContent='🎤 Tap to talk';
+  if(recognition){try{recognition.stop();}catch(e){}}
+}
+function handleVoice(text){
+  const dest=Object.keys(DEST_DATA).find(k=>text.includes(k));
+  if(dest){
+    document.getElementById('destination').value=dest.charAt(0).toUpperCase()+dest.slice(1);
+    showChat(`🎤 "${text}"\n✈️ ${dest.charAt(0).toUpperCase()+dest.slice(1)} detect hua! Plan kar raha hoon...`);
+    setTimeout(planTrip,1200);
+  } else if(text.includes('hotel')||text.includes('stay')){
+    showChat(`🏨 Hotel dhundh raha hoon!\n"${text}"`);
+  } else if(text.includes('restaurant')||text.includes('khana')||text.includes('food')){
+    showChat(`🍽️ Restaurant dhundh raha hoon!\n"${text}"`);
+  } else if(text.includes('gym')||text.includes('fitness')||text.includes('workout')){
+    showChat(`💪 Nearby gyms dhundh raha hoon!\n"${text}"`);
+  } else if(text.includes('payment')||text.includes('pay')){
+    showChat(`💳 Payment options dikha raha hoon!`);
+    setTimeout(()=>openPaymentPopup('upi'),1000);
+  } else {
+    showChat(`🎤 Suna: "${text}"\n\nKeh sakte hain:\n"Goa trip plan karo"\n"Delhi hotel chahiye"\n"Jaipur restaurants"\n"Gym dhundo"`);
+  }
+}
+function showChat(msg){
+  const b=document.getElementById('chatBubble');
+  b.textContent=msg;b.classList.add('show');
+  setTimeout(()=>b.classList.remove('show'),5000);
+}
+
+/* ═══ DATA STORAGE INFO ═══════════════════════════════ */
+/*
+  📦 Data Storage Summary:
+  All user data is stored in the BROWSER SESSION (in-memory JavaScript variables).
+  
+  Variables used:
+  - currentCity: selected destination
+  - cartItems: {itemId: {name, price, qty}} - restaurant cart
+  - selectedTable: table number selected
+  - myLat/myLng: GPS coordinates
+  - myCity: detected city name
+  - currentRestaurant: current open restaurant
+  - currentHotel: current open hotel
+  - tripPlan: generated trip plan
+  - reviewStars: star rating selection
+  
+  Note: This is a frontend demo. In production:
+  - localStorage could be used for persistent sessions
+  - Backend API would store bookings, reviews, profiles
+  - Payment data would go to a secure payment gateway
+*/
+</script>
+</body>
+</html>
